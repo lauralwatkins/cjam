@@ -6,7 +6,7 @@ Laura L Watkins (MPIA), <lauralwatkins@gmail.com>
 Mark den Brok (Groningen, Utah)
 
 > **PUBLICATIONS**  
-[Watkins et al. 2013, MNRAS, accepted; arXiv:1308.4789][watkins2013]  
+[Watkins et al. 2013, MNRAS, 436, 2598][watkins2013]  
 [den Brok et al. 2013, MNRAS, accepted; arXiv:1311.3303][denbrok2013]
 
 -------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ LICENSE AND REFERENCING
 This code is released under a BSD 2-clause license.
 
 If you use this code for your research, please cite:  
-[Watkins et al. 2013, MNRAS accepted "Discrete dynamical models of omega Centauri" | arXiv:1308.4789][watkins2013]
+[Watkins et al. 2013, MNRAS, 436, 2598, "Discrete dynamical models of omega Centauri"][watkins2013]
 
 -------------------------------------------------------------------------------
 
@@ -214,4 +214,4 @@ CJAM/TOOLS/
 [cappellari2008]: http://adsabs.harvard.edu/abs/2008MNRAS.390...71C
 [cappellari2012]: http://adsabs.harvard.edu/abs/2012arXiv1211.7009C
 [denbrok2013]: http://adsabs.harvard.edu/abs/2013arXiv1311.3303D
-[watkins2013]: http://adsabs.harvard.edu/abs/2013MNRAS.tmp.2480W
+[watkins2013]: http://adsabs.harvard.edu/abs/2013MNRAS.436.2598W
