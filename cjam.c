@@ -6,19 +6,20 @@
     file.
     
     INPUTS
-      beta  : velocity anisotropy
-      kappa : rotation parameter
-      ml    : mass-to-light ratio [Msun/Lsun]
-      incl  : inclination angle [radians]
-      dist  : distance [kpc]
-      mbh   : black-hole mass [Msun]
-      rbh   : black-hole scale length [arcsec]
-      nlg   : number of components in luminous MGE
-      nmg   : number of components in mass MGE
-      flmge : path to luminous MGE file
-      fmmge : path to mass MGE file
-      fxy   : path to star positions file
-      fmom  : path to output moments file
+      beta    : velocity anisotropy
+      kappa   : rotation parameter
+      ml      : mass-to-light ratio [Msun/Lsun]
+      incl    : inclination angle [radians]
+      dist    : distance [kpc]
+      mbh     : black-hole mass [Msun]
+      rbh     : black-hole scale length [arcsec]
+      nlg     : number of components in luminous MGE
+      nmg     : number of components in mass MGE
+      flmge   : path to luminous MGE file
+      fmmge   : path to mass MGE file
+      fxy     : path to star positions file
+      fmom    : path to output moments file
+      verbose : print progress, if set
   
   Laura L Watkins [lauralwatkins@gmail.com]
   
@@ -42,7 +43,7 @@
 
 void cjam( double *beta, double *kappa, double *ml, double incl, double dist,
     double mbh, double rbh, int nlg, int nmg, char *flmge, char *fmmge,
-    char *fxy, char *fmom ) {
+    char *fxy, char *fmom, int verbose ) {
     
     FILE *fp;
     struct multigaussexp lum, pot;
@@ -59,15 +60,15 @@ void cjam( double *beta, double *kappa, double *ml, double incl, double dist,
     sprintf( flags, " quiet bufsize=1024 filelen=%i skipsym=# ", filelen );
     
     // read in luminous MGE
-    printf( "Reading luminous MGE from %s\n", flmge );
+    if ( verbose ) printf( "Reading luminous MGE from %s\n", flmge );
     mge_read( flmge, nlg, &lum );
     
     // read in potential MGE
-    printf( "Reading potental MGE from %s\n", fmmge );
+    if ( verbose ) printf( "Reading potential MGE from %s\n", fmmge );
     mge_read( fmmge, nmg, &pot );
     
     // read in positions
-    printf( "Reading positions from %s\n", fxy );
+    if ( verbose ) printf( "Reading positions from %s\n", fxy );
     xp = (double *) malloc( filelen * sizeof( double ) );
     yp = (double *) malloc( filelen * sizeof( double ) );
     nxy = readcol( fxy, flags, "%lf %lf", xp, yp );
@@ -104,36 +105,35 @@ void cjam( double *beta, double *kappa, double *ml, double incl, double dist,
             | ( pot.q[j] != 1. ) ) ) check++;
     
     if ( check > 0 ) {
-        
         // calculate first moments
-        printf( "Calculating first moments.\n" );
+        if ( verbose ) printf( "Calculating first moments.\n" );
         vm = jam_axi_vel_mmt( xp, yp, nxy, incl, &lum, &pot, beta, kappa, nrad,
             nang );
-    
     } else {
-        printf( "Not calculating first moments -- model does not contain a "
-            "rotating, non-spherical, non-isotropic component.\n" );
+        if ( verbose ) printf( "Not calculating first moments -- model does "
+            "not contain a rotating, non-spherical, non-isotropic "
+            "component.\n" );
     }
     
     // calculate second moments
-    printf( "Calculating second moments.\n" );
-    rxxm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta, \
+    if ( verbose ) printf( "Calculating second moments.\n" );
+    rxxm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta,
         nrad, nang, 1 );
-    ryym = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta, \
+    ryym = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta,
         nrad, nang, 2 );
-    rzzm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta, \
+    rzzm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta,
         nrad, nang, 3 );
-    rxym = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta, \
+    rxym = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta,
         nrad, nang, 4 );
-    rxzm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta, \
+    rxzm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta,
         nrad, nang, 5 );
-    ryzm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta, \
+    ryzm = jam_axi_rms_mmt( xp, yp, nxy, incl, &lum, &pot, beta,
         nrad, nang, 6 );
     
     
     
     // output model moments to file
-    printf( "Writing moments to file %s\n\n", fmom );
+    if ( verbose ) printf( "Writing moments to file %s\n\n", fmom );
     fp = fopen( fmom, "w" );
     for ( i = 0; i < nxy; i++ ) {
         if ( check == 0 ) fprintf( fp, "%lf  %lf  %lf  ", 0., 0., 0. );

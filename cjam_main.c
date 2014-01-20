@@ -17,6 +17,7 @@
       (beta)  : velocity anisotropy (for each of the nlg components)
       (kappa) : rotation parameter (for each of the nlg components)
       (ml)    : mass-to-light ratio (for each of the nmg components)
+      verbose : print progress, if set
   
   Laura L Watkins [lauralwatkins@gmail.com]
   
@@ -34,7 +35,7 @@
 
 
 void cjam( double*, double*, double*, double, double, double, double, int, int,
-    char*, char*, char*, char* );
+    char*, char*, char*, char*, int );
 
 
 int main( int argc, char *argv[] ) {
@@ -43,21 +44,24 @@ int main( int argc, char *argv[] ) {
     double incl, dist, mbh, rbh, *beta, *kappa, *ml, temp;
     int nlg, nmg, i, count, narg;
     
+    
+    
     if ( argc == 1 ) {
         printf( "\nRequired arguments:\n"
-            "  flmge  : path to luminous MGE\n"
-            "  nlg    : number of luminous MGE components\n"
-            "  fmmge  : path to mass MGE\n"
-            "  nmg    : number of mass MGE components\n"
-            "  fxy    : path to star positions file\n"
-            "  fmom   : path to ouput moments file\n"
-            "  incl   : inclination angle [radians]\n"
-            "  dist   : distance [kpc]\n"
-            "  mbh    : black-hole mass [Msun]\n"
-            "  rbh    : black-hole scale length [arcsec]\n"
-            "  *beta  : velocity anisotropy (nlg values)\n"
-            "  *kappa : rotation parameter (nlg values)\n"
-            "  *ml    : mass-to-light ratio (nmg values)\n"
+            "  flmge   : path to luminous MGE\n"
+            "  nlg     : number of luminous MGE components\n"
+            "  fmmge   : path to mass MGE\n"
+            "  nmg     : number of mass MGE components\n"
+            "  fxy     : path to star positions file\n"
+            "  fmom    : path to ouput moments file\n"
+            "  incl    : inclination angle [radians]\n"
+            "  dist    : distance [kpc]\n"
+            "  mbh     : black-hole mass [Msun]\n"
+            "  rbh     : black-hole scale length [arcsec]\n"
+            "  *beta   : velocity anisotropy (nlg values)\n"
+            "  *kappa  : rotation parameter (nlg values)\n"
+            "  *ml     : mass-to-light ratio (nmg values)\n"
+            "  verbose : print progress, if set\n"
             "\nNote that beta and kappa are required for each\ncomponent of "
             "the luminous MGE, and ml is required for\neach component of the "
             "potential MGE.  In total there\nshould be (10 + 2*nlg + nmg) "
@@ -66,7 +70,11 @@ int main( int argc, char *argv[] ) {
     }
     
     
-    printf( "\nReading parameters from command line...\n" );
+    
+    // read verbose parameter
+    sscanf( argv[argc-1], "%i", &verbose );
+    
+    if ( verbose ) printf( "\nReading parameters from command line...\n" );
     
     // check we have at least 4 parameters given so we can read the MGEs
     if ( argc - 1 < 4 ) {
@@ -78,12 +86,12 @@ int main( int argc, char *argv[] ) {
     // read path to luminous MGE and size of luminous MGE
     flmge = argv[1];
     sscanf( argv[2], "%i", &nlg );
-    printf( "  luminous MGE:    %s (%i components)\n", flmge, nlg );
+    if ( verbose ) printf( "  luminous MGE:    %s (%i components)\n", flmge, nlg );
     
     // read path to mass MGE and size of mass MGE
     fmmge = argv[3];
     sscanf( argv[4], "%i", &nmg );
-    printf( "  potential MGE:   %s (%i components)\n", fmmge, nmg );
+    if ( verbose ) printf( "  potential MGE:   %s (%i components)\n", fmmge, nmg );
     
     
     
@@ -104,23 +112,23 @@ int main( int argc, char *argv[] ) {
     
     // read path to positions file
     fxy = argv[5];
-    printf( "  input positions: %s\n", fxy );
+    if ( verbose ) printf( "  input positions: %s\n", fxy );
     
     // read path to moments file
     fmom = argv[6];
-    printf( "  output moments:  %s\n", fmom );
+    if ( verbose ) printf( "  output moments:  %s\n", fmom );
     
     
     
     // read inclination, distance, black hole mass and black hole scale length
     sscanf( argv[7], "%lf", &incl );
-    printf( "  inclination:     %lf radians\n", incl );
+    if ( verbose ) printf( "  inclination:     %lf radians\n", incl );
     sscanf( argv[8], "%lf", &dist );
-    printf( "  distance:        %lf kpc\n", incl );
+    if ( verbose ) printf( "  distance:        %lf kpc\n", dist );
     sscanf( argv[9], "%lf", &mbh );
-    printf( "  BH mass:         %lf Msun\n", mbh );
+    if ( verbose ) printf( "  BH mass:         %lf Msun\n", mbh );
     sscanf( argv[10], "%lf", &rbh );
-    printf( "  BH scale length: %lf arcsec\n", rbh );
+    if ( verbose ) printf( "  BH scale length: %lf arcsec\n", rbh );
     
     
     
@@ -129,40 +137,40 @@ int main( int argc, char *argv[] ) {
     
     // read beta values into an array of size nlg
     beta = (double *) malloc( nlg * sizeof( double ) );
-    printf( "  anisotropy:    " );
+    if ( verbose ) printf( "  anisotropy:    " );
     for ( i = 0; i < nlg; i++ ) {
         sscanf( argv[count], "%lf", &temp );
         beta[i] = temp;
-        printf( "  %lf", beta[i] );
+        if ( verbose ) printf( "  %lf", beta[i] );
         count++;
     }
     
     // read kappa values into an array of size nlg
     kappa = (double *) malloc( nlg * sizeof( double ) );
-    printf( "\n  rotation:      " );
+    if ( verbose ) printf( "\n  rotation:      " );
     for ( i = 0; i < nlg; i++ ) {
         sscanf( argv[count], "%lf", &temp );
         kappa[i] = temp;
-        printf( "  %lf", kappa[i] );
+        if ( verbose ) printf( "  %lf", kappa[i] );
         count++;
     }
     
-    // read lambda values into an array of size nmg
+    // read mass-to-light values into an array of size nmg
     ml = (double *) malloc( nmg * sizeof( double ) );
-    printf( "\n  mass-to-light: " );
+    if ( verbose ) printf( "\n  mass-to-light: " );
     for ( i = 0; i < nmg; i++ ) {
         sscanf( argv[count], "%lf", &temp );
         ml[i] = temp;
-        printf( "  %lf", ml[i] );
+        if ( verbose ) printf( "  %lf", ml[i] );
         count++;
     }
-    printf( "\n\n" );
+    if ( verbose ) printf( "\n\n" );
     
     
     
-    // call JAM function
+    // call CJAM function
     cjam( beta, kappa, ml, incl, dist, mbh, rbh, nlg, nmg, flmge, fmmge, fxy,
-        fmom );
+        fmom, verbose );
     
     
     return 0;
