@@ -42,7 +42,7 @@ int main( int argc, char *argv[] ) {
     
     char *flmge, *fmmge, *fxy, *fmom;
     double incl, dist, mbh, rbh, *beta, *kappa, *ml, temp;
-    int nlg, nmg, i, count, narg;
+    int nlg, nmg, i, count, narg, verbose;
     
     
     
@@ -96,7 +96,7 @@ int main( int argc, char *argv[] ) {
     
     
     // use nlg and nmg to check that correct number of betas/kappas/mls given
-    narg = 10 + nlg * 2 + nmg;
+    narg = 11 + nlg * 2 + nmg;
     if ( argc - 1 < narg ) {
         printf( "\nERROR: Not enough arguments.  Expected %i, got %i.\n\n",
             narg, argc - 1 );
