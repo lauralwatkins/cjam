@@ -154,5 +154,16 @@ void cjam( double *beta, double *kappa, double *ml, double incl, double dist,
     free( pot.area );
     free( pot.sigma );
     free( pot.q );
+    if ( check > 0 ) {
+        free( vm.vx );
+        free( vm.vy );
+        free( vm.vz );
+    }
+    free( rxxm );
+    free( ryym );
+    free( rzzm );
+    free( rxym );
+    free( rxzm );
+    free( ryzm );
     
 }

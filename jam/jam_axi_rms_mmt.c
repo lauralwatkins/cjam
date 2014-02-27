@@ -167,9 +167,11 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     
     free( rell );
     free( rad );
+    free( ang );
     free( angvec );
     free( xpol );
     free( ypol );
+    for ( i = 0; i < nrad; i++ ) free( mupol[i] );
     free( mupol );
     free( wm2 );
     free( surf );

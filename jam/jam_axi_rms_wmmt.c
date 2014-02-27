@@ -110,7 +110,7 @@ double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
     
     gsl_integration_workspace_free( w );
     
-    free( kani ); 
+    free( kani );
     free( s2l );
     free( q2l );
     free( s2q2l );

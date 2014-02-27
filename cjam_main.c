@@ -173,5 +173,13 @@ int main( int argc, char *argv[] ) {
         fmom, verbose );
     
     
+    
+    // free memory
+    free( beta );
+    free( kappa );
+    free( ml );
+    
+    
+    
     return 0;
 }

@@ -67,6 +67,7 @@ struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
             mu.vz[i] = wm1[i][2] / surf[i];
         }
         
+        for ( i = 0; i < 3; i++ ) free( wm1[i] );
         free( wm1 );
         free( surf );
         
@@ -164,10 +165,13 @@ struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
     
     free( rell );
     free( rad );
+    free( ang );
     free( angvec );
     free( xpol );
     free( ypol );
+    for ( i = 0; i < nrad; i++ ) free( mupol[i] );
     free( mupol );
+    for ( i = 0; i < 3; i++ ) free( wm1[i] );
     free( wm1 );
     free( surf );
     free( r );
