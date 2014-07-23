@@ -111,7 +111,7 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
         lp.zpow = 0.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
-        gsl_integration_qag( &F, -lim, lim, 1e-3, 1e-5, 1000, 2, w, \
+        gsl_integration_qag( &F, -lim, lim, 0., 1e-3, 1000, 2, w, \
             &result, &error );
         iz0[i] = result;
         
@@ -119,13 +119,13 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
         lp.zpow = 1.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
-        gsl_integration_qag( &F, -lim, lim, 1e0, 1., 1000, 2, w, \
+        gsl_integration_qag( &F, -lim, lim, 1., 1., 1000, 2, w, \
             &result, &error );
-        if ( abs( result ) != 0. ) {
+        if ( fabs( result ) > 1e-6 ) {
             lp.zpow = 1.;
             F.function = &jam_axi_vel_losint;
             F.params = &lp;
-            gsl_integration_qag( &F, -lim, lim, 1e-3, 1e-5, 1000, 2, w, \
+            gsl_integration_qag( &F, -lim, lim, 0., 1e-3, 1000, 2, w, \
                 &result, &error );
         }
         iz1[i] = result;
