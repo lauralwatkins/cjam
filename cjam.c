@@ -95,8 +95,8 @@ void cjam( double *beta, double *kappa, double *ml, double incl, double dist,
     
     
     // properties of interpolation grid
-    nrad = 25;
-    nang = 10;
+    nrad = 30;
+    nang = 7;
     
     // check for at least 1 rotating, non-spherical, non-isotropic component
     check = 0;
