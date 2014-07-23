@@ -97,7 +97,7 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     
     // make linear grid in log of elliptical radius
     rmax = maximum( rell, nxy );
-    lograd = range( log( step ) - 0.1, log( rmax ) + 0.1, nrad, False ); 
+    lograd = range( log( step * 0.99 ), log( rmax * 1.01 ), nrad, False ); 
     rad = (double *) malloc( nrad * sizeof( double ) );
     for ( i = 0; i < nrad; i++ ) rad[i] = exp( lograd[i] );
     
