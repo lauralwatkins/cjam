@@ -44,6 +44,7 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     double *iz0, *iz1;
     double lim, result, error, si, ci, trpig, **sb_mu1;
     int i;
+    size_t neval;
     
     // ---------------------------------
     
@@ -89,6 +90,7 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     
     // set up integration
     gsl_integration_workspace *w = gsl_integration_workspace_alloc( 1000 );
+    gsl_integration_cquad_workspace *ww = gsl_integration_cquad_workspace_alloc(1000);
     gsl_function F;
     F.function = &jam_axi_vel_losint;
     
@@ -111,22 +113,19 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
         lp.zpow = 0.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
-        gsl_integration_qag( &F, -lim, lim, 0., 1e-3, 1000, 2, w, \
-            &result, &error );
+        gsl_integration_cquad(&F, -lim, lim, 0., 1e-4, ww, &result,
+            &error, &neval);
         iz0[i] = result;
         
         // do z^1 integral
         lp.zpow = 1.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
-        gsl_integration_qag( &F, -lim, lim, 1., 1., 1000, 2, w, \
+        gsl_integration_qag( &F, -lim, lim, 1., 1., 1000, 2, w,
             &result, &error );
         if ( fabs( result ) > 1e-6 ) {
-            lp.zpow = 1.;
-            F.function = &jam_axi_vel_losint;
-            F.params = &lp;
-            gsl_integration_qag( &F, -lim, lim, 0., 1e-3, 1000, 2, w, \
-                &result, &error );
+            gsl_integration_cquad(&F, -lim, lim, 0., 1e-3, ww, &result,
+                &error, &neval);
         }
         iz1[i] = result;
         
@@ -134,6 +133,7 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     
     // tidy up
     gsl_integration_workspace_free( w );
+    gsl_integration_cquad_workspace_free(ww);
     
     // ---------------------------------
     

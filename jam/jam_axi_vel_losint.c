@@ -77,7 +77,7 @@ double jam_axi_vel_losint( double zp, void *params ) {
     gsl_function F;
     F.function = &jam_axi_vel_mgeint;
     F.params = &mp;
-    gsl_integration_qag( &F, 0., 1., 0., 1e-5, 1000, 2, w, &result, &error );
+    gsl_integration_qag( &F, 0., 1., 0., 1e-5, 1000, 6, w, &result, &error );
     gsl_integration_workspace_free( w );
     
     // mge volume density

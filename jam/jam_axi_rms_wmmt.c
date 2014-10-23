@@ -103,7 +103,7 @@ double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
         p.y2 = yp[i] * yp[i];
         p.xy = xp[i] * yp[i];
         F.params = &p;
-        gsl_integration_qag( &F, 0., 1., 0., 1e-5, 1000, 2, w, \
+        gsl_integration_qag( &F, 0., 1., 0., 1e-5, 1000, 6, w, \
             &result, &error );
         sb_mu2[i] = result;
     }
