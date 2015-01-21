@@ -7,7 +7,7 @@ Mark den Brok (Groningen, Utah)
 
 > **PUBLICATIONS**  
 [Watkins et al. 2013, MNRAS, 436, 2598][watkins2013]  
-[den Brok et al. 2013, MNRAS, accepted; arXiv:1311.3303][denbrok2013]
+[den Brok et al. 2014, MNRAS, 438, 487][denbrok2014]
 
 -------------------------------------------------------------------------------
 
@@ -213,5 +213,5 @@ CJAM/TOOLS/
 
 [cappellari2008]: http://adsabs.harvard.edu/abs/2008MNRAS.390...71C
 [cappellari2012]: http://adsabs.harvard.edu/abs/2012arXiv1211.7009C
-[denbrok2013]: http://adsabs.harvard.edu/abs/2013arXiv1311.3303D
+[denbrok2014]: http://adsabs.harvard.edu/abs/2014MNRAS.438..487D
 [watkins2013]: http://adsabs.harvard.edu/abs/2013MNRAS.436.2598W
