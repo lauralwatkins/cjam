@@ -28,11 +28,12 @@
 #include "../mge/mge.h"
 
 
-double jam_axi_vel_losint( double zp, void *params ) {
+double jam_axi_vel_losint(double zp, void *params) {
     
     struct params_losint *lp;
     struct params_mgeint mp;
-    double xp, yp, si, ci, r, z, r2, z2, nu, intg, result, error, *knu;
+    double xp, yp, si, ci, r, z, r2, z2, nu, intg, result, error, nu_i;
+    double sign_kappa, sum;
     int i;
     
     // get parameters
@@ -41,54 +42,50 @@ double jam_axi_vel_losint( double zp, void *params ) {
     yp = lp->yp;
     
     // intrinsic R and z
-    si = sin( lp->incl );
-    ci = cos( lp->incl );
-    r = sqrt( pow( zp * si - yp * ci, 2 ) + pow( xp, 2 ) );         // eqn 25
-    z = sqrt( pow( zp * ci + yp * si, 2 ) );
+    si = sin(lp->incl);
+    ci = cos(lp->incl);
+    r = sqrt(pow(zp*si - yp*ci, 2) + pow(xp, 2));                   // eqn 25
+    z = sqrt(pow(zp*ci + yp*si, 2));
     
     // do some prep for the integrand to avoid repeat calculations
     r2 = r * r;
     z2 = z * z;
     
-    // kappa^2 * nu
-    knu = (double *) malloc( lp->lum->ntotal * sizeof( double ) );
-    for ( i = 0; i < lp->lum->ntotal; i++ ) {
-        if ( lp->kappa[i] == 0. ) knu[i] = 0.;
-        else knu[i] = pow( lp->kappa[i], 3 ) / fabs( lp->kappa[i] ) \
-            * lp->lum->area[i] \
-            * exp( -0.5 / lp->s2l[i] * ( r2 + z2 / lp->q2l[i] ) );
-    }
-    
     // parameters for integrand function
     mp.r2 = r2;
     mp.z2 = z2;
-    mp.lum = lp->lum;
     mp.pot = lp->pot;
-    mp.bani = lp->bani;
-    mp.s2l = lp->s2l;
-    mp.q2l = lp->q2l;
-    mp.s2q2l = lp->s2q2l;
     mp.s2p = lp->s2p;
     mp.e2p = lp->e2p;
-    mp.knu = knu;
     
     // perform integration
-    gsl_integration_workspace *w = gsl_integration_workspace_alloc( 1000 );
+    gsl_integration_workspace *w = gsl_integration_workspace_alloc(1000);
     gsl_function F;
     F.function = &jam_axi_vel_mgeint;
-    F.params = &mp;
-    gsl_integration_qag( &F, 0., 1., 0., 1e-5, 1000, 6, w, &result, &error );
-    gsl_integration_workspace_free( w );
+    
+    for (i=0; i<lp->lum->ntotal; i++) {
+        if (lp->kappa[i]==0.) sign_kappa = 0.;
+        else sign_kappa = lp->kappa[i]/fabs(lp->kappa[i]);
+        nu_i = lp->lum->area[i] * exp(-0.5/lp->s2l[i]*(r2+z2/lp->q2l[i]));
+        
+        mp.bani = lp->bani[i];
+        mp.s2l = lp->s2l[i];
+        mp.q2l = lp->q2l[i];
+        mp.s2q2l = lp->s2q2l[i];
+        F.params = &mp;
+        gsl_integration_qag(&F, 0., 1., 0., 1e-5, 1000, 6, w, &result, &error);
+        sum += sign_kappa * pow(lp->kappa[i], 2) * nu_i * fabs(result);
+    }
+    
+    gsl_integration_workspace_free(w);
     
     // mge volume density
-    nu = mge_dens( lp->lum, r, z );
+    nu = mge_dens(lp->lum, r, z);
     
     // keep track of kappa signs - see note 8 p77 of Cappellari 2008
-    intg = nu * result / fabs( nu * result ) * sqrt( fabs( nu * result ) );
+    intg = nu*result / fabs(nu*result) * sqrt(fabs(nu*result));
     
-    free( knu );
-    
-    intg *= pow( zp, lp->zpow );
+    intg *= pow(zp, lp->zpow);
     
     return intg;
     

@@ -43,8 +43,8 @@ struct params_losint {
 };
 
 struct params_mgeint {
-    struct multigaussexp *lum, *pot;
-    double r2, z2, *bani, *s2l, *q2l, *s2q2l, *s2p, *e2p, *knu;
+    struct multigaussexp *pot;
+    double r2, z2, bani, s2l, q2l, s2q2l, *s2p, *e2p;
 };
 
 struct params_rmsint {

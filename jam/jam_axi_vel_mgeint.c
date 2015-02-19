@@ -26,33 +26,28 @@
 #include "jam.h"
 
 
-double jam_axi_vel_mgeint( double u, void *params ) {
+double jam_axi_vel_mgeint(double u, void *params) {
     
     struct params_mgeint *p;
     double c, d, p2, hj, e, sum;
-    int j, k;
+    int j;
     
-    double u2 = u * u;
+    double u2 = u*u;
     
     p = params;
     
     // double summation of eqn 38 over integration variable u
     sum = 0.;
-    for ( j = 0; j < p->pot->ntotal; j++ ) { // mass gaussians
+    
+    for (j=0; j<p->pot->ntotal; j++) { // mass gaussians
         
         p2 = 1. - p->e2p[j] * u2;
-        hj = exp( -0.5 / p->s2p[j] * u2 * ( p->r2 + p->z2 / p2 ) ) \
-            / sqrt( p2 );                                           // eqn 17
+        hj = exp( -0.5/p->s2p[j]*u2*(p->r2+p->z2/p2) )/sqrt(p2);         // 17
         e = p->pot->q[j] * p->pot->area[j] * hj * u2;
         
-        for ( k = 0; k < p->lum->ntotal; k++ ) { // luminous gaussians
-            
-            c = p->e2p[j] - p->s2q2l[k] / p->s2p[j];                // eqn 22
-            d = 1. - p->bani[k] * p->q2l[k] - ( ( 1. - p->bani[k] ) * c \
-                + p->e2p[j] * p->bani[k] ) * u2;                    // eqn 23
-            sum += p->knu[k] * e * d / ( 1. - c * u2 );             // eqn 38
-            
-        }
+        c = p->e2p[j] - p->s2q2l / p->s2p[j];                            // 22
+        d = 1. - p->bani*p->q2l - ((1.-p->bani)*c+p->e2p[j]*p->bani)*u2; // 23
+        sum += e*d/(1.-c*u2);                                            // 38
         
     }
     
