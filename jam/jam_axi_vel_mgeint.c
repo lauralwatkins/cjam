@@ -38,7 +38,6 @@ double jam_axi_vel_mgeint(double u, void *params) {
     
     // double summation of eqn 38 over integration variable u
     sum = 0.;
-    
     for (j=0; j<p->pot->ntotal; j++) { // mass gaussians
         
         p2 = 1. - p->e2p[j] * u2;
