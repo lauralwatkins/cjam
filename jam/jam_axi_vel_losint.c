@@ -63,6 +63,7 @@ double jam_axi_vel_losint(double zp, void *params) {
     gsl_function F;
     F.function = &jam_axi_vel_mgeint;
     
+    sum = 0.;
     for (i=0; i<lp->lum->ntotal; i++) {
         if (lp->kappa[i]==0.) sign_kappa = 0.;
         else sign_kappa = lp->kappa[i]/fabs(lp->kappa[i]);
@@ -83,7 +84,7 @@ double jam_axi_vel_losint(double zp, void *params) {
     nu = mge_dens(lp->lum, r, z);
     
     // keep track of kappa signs - see note 8 p77 of Cappellari 2008
-    intg = nu*result / fabs(nu*result) * sqrt(fabs(nu*result));
+    intg = nu*sum/fabs(nu*sum)*sqrt(fabs(nu*sum));
     
     intg *= pow(zp, lp->zpow);
     
