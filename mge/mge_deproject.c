@@ -47,10 +47,13 @@ struct multigaussexp mge_deproject( struct multigaussexp *pmge, double incl ) {
             printf( "Inclination %lf is too low: q<0\n", incl );
             exit(0);
         }
-        imge.q[i] = sqrt( imge.q[i] ) / si;
-        if ( imge.q[i] < 0.05 ) {
-            printf( "There are components with q<0.05\n" );
-            exit(0);
+        if (incl==0.) imge.q[i] = 1.; // avoid problems when sin(incl)=0
+        else {
+            imge.q[i] = sqrt( imge.q[i] ) / si;
+            if ( imge.q[i] < 0.05 ) {
+                printf( "There are components with q<0.05\n" );
+                exit(0);
+            }
         }
         
         // convert surface density to volume density
