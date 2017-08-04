@@ -271,13 +271,13 @@ SRC/TOOLS/
 
 [Watkins et al. 2013, MNRAS, 436, 2598][Watkins2013]  
 [den Brok et al. 2014, MNRAS, 438, 487][denBrok2014]  
-[Zhu et al. 2014, MNRAS, 438, 487][Zhu2016a]  
-[Zhu et al. 2014, MNRAS, 438, 487][Zhu2016b]
+[Zhu et al. 2016, MNRAS, 462, 4001][Zhu2016a]  
+[Zhu et al. 2016, MNRAS, 463, 1117][Zhu2016b]
 
 
 [Cappellari2008]: https://ui.adsabs.harvard.edu/#abs/2008MNRAS.390...71C
 [Cappellari2012]: https://ui.adsabs.harvard.edu/#abs/2012arXiv1211.7009C
-[denBrok2014]: https://ui.adsabs.harvard.edu/#abs/2014MNRAS.438..487D
 [Watkins2013]: https://ui.adsabs.harvard.edu/#abs/2013MNRAS.436.2598W
+[denBrok2014]: https://ui.adsabs.harvard.edu/#abs/2014MNRAS.438..487D
 [Zhu2016a]: https://ui.adsabs.harvard.edu/#abs/2016MNRAS.462.4001Z
 [Zhu2016b]: https://ui.adsabs.harvard.edu/#abs/2016MNRAS.463.1117Z
