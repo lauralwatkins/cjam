@@ -1,13 +1,16 @@
 CJAM
 ====
 
-> **AUTHORS**  
-Laura L Watkins (MPIA, STScI), <lauralwatkins@gmail.com>  
-Mark den Brok (Groningen, Utah)
+#### AUTHORS
 
-> **PUBLICATIONS**  
-[Watkins et al. 2013, MNRAS, 436, 2598][watkins2013]  
-[den Brok et al. 2014, MNRAS, 438, 487][denbrok2014]
+* Laura L Watkins (MPIA, STScI), <lauralwatkins@gmail.com>  
+* Mark den Brok (Groningen, Utah)
+
+#### CONTRIBUTORS
+
+* Ling Zhu
+* Glenn van de Ven
+* Erik Tollerud
 
 -------------------------------------------------------------------------------
 
@@ -28,6 +31,8 @@ CONTENTS
     * running the example
 * notes
 * directory structure
+* contributors
+* publications
 
 -------------------------------------------------------------------------------
 
@@ -36,13 +41,13 @@ CONTENTS
 This code is released under a BSD 2-clause license.
 
 If you use this code for your research, please cite:  
-[Watkins et al. 2013, MNRAS, 436, 2598, "Discrete dynamical models of omega Centauri"][watkins2013]
+[Watkins et al. 2013, MNRAS, 436, 2598, "Discrete dynamical models of omega Centauri"][Watkins2013]
 
 -------------------------------------------------------------------------------
 
 ## CODE DESCRIPTION
 
-This code calculates first and second velocity moments using the Jeans Anisotropic MGE (JAM) models of [Cappellari (2008)][cappellari2008] and [Cappellari (2012)][cappellari2012].  We have extended these models to calculate all three (x, y, z) first moments and all six (xx, yy, zz, xy, xz, yz) second moments.  The full calculations are given in [Watkins et al. (2013)][watkins2013].  The underlying code is written in C, and is an based on [the IDL implementation of the line-of-sight calculations](http://www-astro.physics.ox.ac.uk/~mxc/idl/#jam) by Michele Cappellari. We also provide a Python/Cython wrapper. The C code can be compiled and used directly, or via Python.
+This code calculates first and second velocity moments using the Jeans Anisotropic MGE (JAM) models of [Cappellari (2008)][Cappellari2008] and [Cappellari (2012)][Cappellari2012].  We have extended these models to calculate all three (x, y, z) first moments and all six (xx, yy, zz, xy, xz, yz) second moments.  The full calculations are given in [Watkins et al. (2013)][Watkins2013].  The underlying code is written in C, and is an based on [the IDL implementation of the line-of-sight calculations](http://www-astro.physics.ox.ac.uk/~mxc/idl/#jam) by Michele Cappellari. We also provide a Python/Cython wrapper. The C code can be compiled and used directly, or via Python.
 
 -------------------------------------------------------------------------------
 
@@ -261,7 +266,19 @@ SRC/TOOLS/
 > *tools.h*             : header file for tools directory (except readcol)  
 > *where.c*             : selects a given subset of an array
 
-[cappellari2008]: http://adsabs.harvard.edu/abs/2008MNRAS.390...71C
-[cappellari2012]: http://adsabs.harvard.edu/abs/2012arXiv1211.7009C
-[denbrok2014]: http://adsabs.harvard.edu/abs/2014MNRAS.438..487D
-[watkins2013]: http://adsabs.harvard.edu/abs/2013MNRAS.436.2598W
+-------------------------------------------------------------------------------
+
+## PUBLICATIONS
+
+[Watkins et al. 2013, MNRAS, 436, 2598][Watkins2013]  
+[den Brok et al. 2014, MNRAS, 438, 487][denBrok2014]  
+[Zhu et al. 2014, MNRAS, 438, 487][Zhu2016a]  
+[Zhu et al. 2014, MNRAS, 438, 487][Zhu2016b]
+
+
+[Cappellari2008]: https://ui.adsabs.harvard.edu/#abs/2008MNRAS.390...71C
+[Cappellari2012]: https://ui.adsabs.harvard.edu/#abs/2012arXiv1211.7009C
+[denBrok2014]: https://ui.adsabs.harvard.edu/#abs/2014MNRAS.438..487D
+[Watkins2013]: https://ui.adsabs.harvard.edu/#abs/2013MNRAS.436.2598W
+[Zhu2016a]: https://ui.adsabs.harvard.edu/#abs/2016MNRAS.462.4001Z
+[Zhu2016b]: https://ui.adsabs.harvard.edu/#abs/2016MNRAS.463.1117Z
