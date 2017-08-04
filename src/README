@@ -1,0 +1,171 @@
+-------------------------------------------------------------------------------
+  CJAM
+  
+    Authors:
+      Laura L Watkins [lauralwatkins@gmail.com]
+      Mark den Brok
+    
+    References:
+      JAM models: Cappellari 2008, MNRAS, 390, 71
+        http://adsabs.harvard.edu/abs/2008MNRAS.390...71C
+      JAM expanded second moments: Cappellari 2012, arXiv:1211.7009
+        http://adsabs.harvard.edu/abs/2012arXiv1211.7009C
+      JAM in IDL by Michele Cappellari:
+        http://www-astro.physics.ox.ac.uk/~mxc/idl/#jam
+    
+-------------------------------------------------------------------------------
+
+
+CODE DESCRIPTION
+
+
+-------------------------------------------------------------------------------
+
+
+INSTALLATION & COMPILATION
+
+
+The code requires the GNU Scientific Library (GSL) to perform integrations and
+interpolations - downloads and installation instructions may be found at
+http://www.gnu.org/software/gsl/.
+
+The Makefile will be system-specific.  Makefile is the makefile I use on my
+machine (this may or may not work for you).  If GSL is not installed in the
+default directory for your system, you will also need to provide the path to
+GSL in the Makefile.
+
+To compile the moments code:
+    $ make cjam
+
+To clean the directory of all .o files:
+    $ make clean
+
+
+-------------------------------------------------------------------------------
+
+
+MOMENTS - INPUT FILES
+
+
+The code requires three input files:
+    1   the parameterisation for the luminous MGE
+    2   the parameterisation for the potential (mass) MGE
+    3   the projected positions of the objects in the dataset
+
+The file containing the MGE parameters has 4 columns and M rows (where M is
+the number of gaussian components in the MGE).  The columns contain:
+    1   n      gaussian number
+    2   i      central surface brightness (Lsun/pc^2)
+    3   sigma  major axis dispersion (arcsec)
+    4   q'     projected flattening
+
+The file containing the stellar positions has 2 columns and N rows (where N is
+the number of objects in the dataset).  The columns contain:
+    1   x'  projected major axis coordinate (arcsec)
+    2   y'  projected minor axis coordinate (arcsec)
+
+Comments can be added to these input files using #.
+
+
+-------------------------------------------------------------------------------
+
+
+MOMENTS - OUTPUT FILES
+
+
+The code outputs a file with 9 columns and N rows (where N is the number of
+stars in the input positions file).  The columns contain:
+    1   v_x'      x' component of the velocity first moment
+    2   v_y'      y' component of the velocity first moment
+    3   v_z'      z' component of the velocity first moment
+    4   v^2_x'    x' component of the velocity second moment tensor
+    5   v^2_y'    y' component of the velocity second moment tensor
+    6   v^2_z'    z' component of the velocity second moment tensor
+    7   v^2_x'y'  x'-y' component of the velocity second moment tensor
+    8   v^2_x'z'  x'-z' component of the velocity second moment tensor
+    9   v^2_y'z'  y'-z' component of the velocity second moment tensor
+
+
+-------------------------------------------------------------------------------
+
+
+MOMENTS CODE
+
+This code calculates first and second velocity moments using the Jeans
+Anisotropic MGE (JAM) models of Cappellari (2008).  We have extended the
+models presented in that paper to calculate all three (x, y, z) first moments
+and all six (xx, yy, zz, xy, xz, yz) second moments.  The full calculations
+are given in Watkins et al. (2013).
+
+jam/jam_axi_vel_mmt.c calculates the first moments and jam/jam_axi_rms_mmt.c
+calculates the second moments.  cjam.c and cjam_main.c are wrapper functions
+that are called from the command line to process the inputs and run the moment
+calculators.  These programs compile to an executable cjam which takes the
+following arguments:
+    
+    flmge   : path to luminous MGE
+    nlg     : number of luminous MGE components
+    fmmge   : path to mass MGE
+    nmg     : number of mass MGE components
+    fxy     : path to star positions file
+    incl    : inclination angle [radians]
+    dist    : distance [kpc]
+    mbh     : black-hole mass [Msun]
+    rbh     : black-hole scale length [arcsec]
+    (beta)  : velocity anisotropy (for each of the nlg components)
+    (kappa) : rotation parameter (for each of the nlg components)
+    (ml)    : mass-to-light ratio (for each of the nmg components)
+    
+This allows the luminous MGE and the mass MGE to be different.  It also allows
+for velocity anisotropy and rotation that change for each luminous MGE
+component and mass-to-light ratio that changes for each mass MGE component. 
+The resulting velocity moments are output to a file in the same directory from
+which the program was called.  The file name of the output is constructed
+using the input parameters.
+
+
+-------------------------------------------------------------------------------
+
+
+DIRECTORY STRUCTURE
+
+
+CJAM/
+    cjam.c               : top-level for constant beta and ml
+    cjam_main.c          : takes arguments from command line and calls cjam
+    Makefile             : makefile
+    README               : this document
+
+CJAM/INTERP/
+    interp.h             : header file for interp directory
+    interp2dpol.c        : performs interpolation over a 2d polar grid
+
+CJAM/JAM/
+    jam.h                : header file for jam directory
+    jam_axi_rms_mgeint.c : integrand for second moments
+    jam_axi_rms_mmt.c    : second moments
+    jam_axi_rms_wmmt.c   : weighted second moments
+    jam_axi_vel_losint.c : outer integrand for first moments
+    jam_axi_vel_mgeint.c : inner integrand for first moments
+    jam_axi_vel_mmt.c    : first moments
+    jam_axi_vel_wmmt.c   : weighted first moments
+
+CJAM/MGE/
+    mge.h                : header file for mge directory
+    mge_addbh.c          : add a black hole component to an MGE
+    mge_dens.c           : volume density distribution of an MGE
+    mge_deproject.c      : deproject an MGE
+    mge_qmed.c           : median flattening of an MGE
+    mge_read.c           : read MGE from file into a structure
+    mge_surf.c           : surface density of an MGE
+
+CJAM/TOOLS/
+    maximum.c            : finds the maximum value in an array
+    median.c             : calculates the median of an array of values
+    minimum.c            : finds the minimum value in an array
+    range.c              : creates an array of n numbers between given limits
+    readcol.c            : read in data from a file
+    readcol.h            : header file for readcol
+    sort_dbl.c           : sorts an array of doubles
+    tools.h              : header file for tools directory (except readcol)
+    where.c              : selects a given subset of an array
