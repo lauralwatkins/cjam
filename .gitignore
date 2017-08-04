@@ -1,6 +1,5 @@
-# use glob syntax.
-syntax: glob
-
 *.DS_Store
 *.o
-cjam
+Makefile
+build
+cjam/*.c
