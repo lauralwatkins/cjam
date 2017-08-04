@@ -31,7 +31,6 @@ CONTENTS
     * running the example
 * notes
 * directory structure
-* contributors
 * publications
 
 -------------------------------------------------------------------------------
