@@ -5,8 +5,7 @@ from astropy import table, units as u
 cimport cython_jam
 
 
-def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q,
-    beta, kappa, nrad=30, nang=7):
+def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q, beta, kappa, nrad=30, nang=7):
     
     # get array lengths needed for C
     nxy = len(xp)
@@ -58,8 +57,7 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
 
 
 
-def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q,
-    beta, nrad=30, nang=7):
+def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q, beta, nrad=30, nang=7):
     
     # get array lengths needed for C
     nxy = len(xp)
@@ -119,9 +117,7 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
 
 
 
-def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0,
-    nscale=1, mscale=1, incl=np.pi/2.*u.rad, mbh=0*u.Msun, rbh=0*u.arcsec,
-    nrad=30, nang=7):
+def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, nscale=1, mscale=1, incl=np.pi/2*u.rad, mbh=0*u.Msun, rbh=0*u.arcsec, nrad=30, nang=7):
     
     # make sure anisotropy and rotation arrays are the correct length
     beta = np.ones(len(tracer_mge))*beta
@@ -139,9 +135,9 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0,
     
     # add BH to potential gaussian
     if mbh>0 and rbh>0:
-        potential_copy.add_row([0, mbh/2/np.pi/(rbh*distance/u.rad).to("pc")**2,
+        potential_copy.add_row([mbh/2/np.pi/(rbh*distance/u.rad).to("pc")**2,
             rbh, 1])
-        potential_copy.sort("n")
+        potential_copy.sort("s")
     
     # calculate first moments
     vx, vy, vz = axi_vel(\
