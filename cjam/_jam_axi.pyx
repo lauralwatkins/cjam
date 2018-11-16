@@ -135,8 +135,10 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
     
     # add BH to potential gaussian
     if mbh>0 and rbh>0:
-        potential_copy.add_row([mbh/2/np.pi/(rbh*distance/u.rad).to("pc")**2,
-            rbh, 1])
+        potential_copy.add_row()
+        potential_copy["i"][-1] = mbh/2/np.pi/(rbh*distance/u.rad).to("pc")**2
+        potential_copy["s"][-1] = rbh
+        potential_copy["q"][-1] = 1
         potential_copy.sort("s")
     
     # calculate first moments
