@@ -153,7 +153,9 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
         (potential_copy["s"]*distance/u.rad).to("pc").value,
         potential_copy["q"],
         beta,
-        kappa)
+        kappa,
+        nrad,
+        nang)
     
     # calculate second moments
     rxx, ryy, rzz, rxy, rxz, ryz = axi_rms(\
@@ -166,7 +168,9 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
         potential_copy["i"].to("Msun/pc**2").value,
         (potential_copy["s"]*distance/u.rad).to("pc").value,
         potential_copy["q"],
-        beta)
+        beta,
+        nrad,
+        nang)
     
     # put results into astropy table, also convert PMs to mas/yr
     kms2masyr = (u.km/u.s*u.rad/distance).to("mas/yr")
