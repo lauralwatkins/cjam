@@ -72,6 +72,7 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
         mu = (double *) malloc( nxy * sizeof( double ) );
         for ( i = 0; i < nxy; i++ ) {
             mu[i] = wm2[i] / surf[i];
+            if (surf[i] <= 0) mu[i] = 0;
         }
         
         free( wm2 );
@@ -136,6 +137,7 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
             
             k = i * nang + j;
             mupol[i][j] = wm2[k] / surf[k];
+            if (surf[k] <= 0) mupol[i][j] = 0;
             mupol[i][2*nang-2-j] = mupol[i][j];
             mupol[i][2*nang-2+j] = mupol[i][j];
             mupol[i][4*nang-4-j] = mupol[i][j];
@@ -155,7 +157,13 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
         e[i] = atan2( yp[i] / qmed, xp[i] );
     }
     
+    // interpolation to get second moments for all data points
     mu = interp2dpol( mupol, rad, angvec, r, e, nrad, 4*nang-3, nxy );
+    
+    // remove any negative second moments introduced by interpolation
+    for (i=0; i<nxy; i++) {
+        if (mu[i]<0) mu[i] = 0;
+    }
     
     // fix signs of xy and xz second moments
     if ( vv == 4 ) for ( i = 0; i < nxy; i++ ) \
