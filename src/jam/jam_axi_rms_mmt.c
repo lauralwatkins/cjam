@@ -98,7 +98,7 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     
     // make linear grid in log of elliptical radius
     rmax = maximum( rell, nxy );
-    lograd = range( log( step * 0.99 ), log( rmax * 1.01 ), nrad, False ); 
+    lograd = range( log( step * 0.99 ), log( rmax * 1.01 ), nrad, False );
     rad = (double *) malloc( nrad * sizeof( double ) );
     for ( i = 0; i < nrad; i++ ) rad[i] = exp( lograd[i] );
     
@@ -136,8 +136,8 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
         for ( j = 0; j < nang; j++ ) {
             
             k = i * nang + j;
-            mupol[i][j] = wm2[k] / surf[k];
-            if (surf[k] <= 0) mupol[i][j] = 0;
+            if (surf[k]!=0) mupol[i][j] = wm2[k] / surf[k];
+            else mupol[i][j] = 0;
             mupol[i][2*nang-2-j] = mupol[i][j];
             mupol[i][2*nang-2+j] = mupol[i][j];
             mupol[i][4*nang-4-j] = mupol[i][j];
@@ -160,9 +160,11 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     // interpolation to get second moments for all data points
     mu = interp2dpol( mupol, rad, angvec, r, e, nrad, 4*nang-3, nxy );
     
-    // remove any negative second moments introduced by interpolation
+    // set second moments to zero when surface brightness is zero
+    // fix was already done above but negatives come back with interpolation
+    surf = mge_surf(lum, xp, yp, nxy);
     for (i=0; i<nxy; i++) {
-        if (mu[i]<0) mu[i] = 0;
+        if (surf[i]==0) mu[i] = 0;
     }
     
     // fix signs of xy and xz second moments
