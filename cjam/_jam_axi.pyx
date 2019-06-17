@@ -48,10 +48,14 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     c_vz = vz
     
     # now call the JAM code
-    cython_jam.jam_axi_vel(&c_xp[0], &c_yp[0], nxy, incl,
-        &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
-        &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
-        &c_beta[0], &c_kappa[0], nrad, nang, &c_vx[0], &c_vy[0], &c_vz[0])
+    try:
+        cython_jam.jam_axi_vel(&c_xp[0], &c_yp[0], nxy, incl,
+            &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
+            &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
+            &c_beta[0], &c_kappa[0], nrad, nang, &c_vx[0], &c_vy[0], &c_vz[0])
+    except:
+        print("CJAM first moments failed in axi_vel.")
+        return False
     
     return vx, vy, vz
 
@@ -107,11 +111,15 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     c_ryz = ryz
     
     # now call the JAM code
-    cython_jam.jam_axi_rms(&c_xp[0], &c_yp[0], nxy, incl,
-        &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
-        &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
-        &c_beta[0], nrad, nang, &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
-        &c_rxz[0], &c_ryz[0])
+    try:
+        cython_jam.jam_axi_rms(&c_xp[0], &c_yp[0], nxy, incl,
+            &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
+            &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
+            &c_beta[0], nrad, nang, &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
+            &c_rxz[0], &c_ryz[0])
+    except:
+        print("CJAM second moments failed in axi_rms.")
+        return False
     
     return rxx, ryy, rzz, rxy, rxz, ryz
 
@@ -142,35 +150,43 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
         potential_copy.sort("s")
     
     # calculate first moments
-    vx, vy, vz = axi_vel(\
-        (xp*distance/u.rad).to("pc").value,
-        (yp*distance/u.rad).to("pc").value,
-        incl.to("rad").value,
-        tracer_copy["i"].value,
-        (tracer_copy["s"]*distance/u.rad).to("pc").value,
-        tracer_copy["q"],
-        potential_copy["i"].to("Msun/pc**2").value,
-        (potential_copy["s"]*distance/u.rad).to("pc").value,
-        potential_copy["q"],
-        beta,
-        kappa,
-        nrad,
-        nang)
+    try:
+        vx, vy, vz = axi_vel(\
+            (xp*distance/u.rad).to("pc").value,
+            (yp*distance/u.rad).to("pc").value,
+            incl.to("rad").value,
+            tracer_copy["i"].value,
+            (tracer_copy["s"]*distance/u.rad).to("pc").value,
+            tracer_copy["q"],
+            potential_copy["i"].to("Msun/pc**2").value,
+            (potential_copy["s"]*distance/u.rad).to("pc").value,
+            potential_copy["q"],
+            beta,
+            kappa,
+            nrad,
+            nang)
+    except:
+        print("CJAM first moments failed in axisymmetric.")
+        return False
     
     # calculate second moments
-    rxx, ryy, rzz, rxy, rxz, ryz = axi_rms(\
-        (xp*distance/u.rad).to("pc").value,
-        (yp*distance/u.rad).to("pc").value,
-        incl.to("rad").value,
-        tracer_copy["i"].value,
-        (tracer_copy["s"]*distance/u.rad).to("pc").value,
-        tracer_copy["q"],
-        potential_copy["i"].to("Msun/pc**2").value,
-        (potential_copy["s"]*distance/u.rad).to("pc").value,
-        potential_copy["q"],
-        beta,
-        nrad,
-        nang)
+    try:
+        rxx, ryy, rzz, rxy, rxz, ryz = axi_rms(\
+            (xp*distance/u.rad).to("pc").value,
+            (yp*distance/u.rad).to("pc").value,
+            incl.to("rad").value,
+            tracer_copy["i"].value,
+            (tracer_copy["s"]*distance/u.rad).to("pc").value,
+            tracer_copy["q"],
+            potential_copy["i"].to("Msun/pc**2").value,
+            (potential_copy["s"]*distance/u.rad).to("pc").value,
+            potential_copy["q"],
+            beta,
+            nrad,
+            nang)
+    except:
+        print("CJAM second moments failed in axisymmetric.")
+        return False
     
     # put results into astropy table, also convert PMs to mas/yr
     kms2masyr = (u.km/u.s*u.rad/distance).to("mas/yr")
