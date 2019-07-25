@@ -72,10 +72,10 @@ double jam_axi_rms_mgeint( double, void * );
 
 double* jam_axi_rms_mmt( double *,double *, int, double, \
     struct multigaussexp *, struct multigaussexp *, double *, \
-    int, int, int );
+    int, int, int , int *);
 
 double* jam_axi_rms_wmmt( double *, double *, int, double, \
-    struct multigaussexp *, struct multigaussexp *, double *, int );
+    struct multigaussexp *, struct multigaussexp *, double *, int , int *);
 
 void jam_axi_vel(double *xp, double *yp, int nxy, double incl, \
     double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \

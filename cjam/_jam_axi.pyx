@@ -188,6 +188,11 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
         print("CJAM second moments failed in axisymmetric.")
         return False
     
+    if (np.sum(rxx)==0.) & (np.sum(ryy)==0.) & (np.sum(rzz)==0.) &\
+       	(np.sum(rxy)==0.) & (np.sum(rxz)==0.) & (np.sum(ryz)==0.): # Tadeja was here
+       	#print("gsl roundoff error occured. The model is not good") # Tadeja was here
+        return False # Tadeja was here
+   
     # put results into astropy table, also convert PMs to mas/yr
     kms2masyr = (u.km/u.s*u.rad/distance).to("mas/yr")
     moments = table.QTable()
