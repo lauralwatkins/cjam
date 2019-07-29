@@ -6,7 +6,7 @@ cdef extern from "../src/jam/jam.h":
         double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
         double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
         double *beta, int nrad, int nang, double *rxx, double *ryy, \
-        double *rzz, double *rxy, double *rxz, double *ryz)
+        double *rzz, double *rxy, double *rxz, double *ryz, int *gslFlag_rms)
     
     void jam_axi_vel(double *xp, double *yp, int nxy, double incl, \
         double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \

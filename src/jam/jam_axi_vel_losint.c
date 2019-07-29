@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <gsl/gsl_integration.h>
+#include <gsl/gsl_errno.h>
 #include "jam.h"
 #include "../mge/mge.h"
 
@@ -35,6 +36,7 @@ double jam_axi_vel_losint(double zp, void *params) {
     double xp, yp, si, ci, r, z, r2, z2, nu, intg, result, error, nu_i;
     double sign_kappa, sum;
     int i;
+    int status = 0;//, bla; // Tadeja was here
     
     // get parameters
     lp = params;
@@ -62,7 +64,7 @@ double jam_axi_vel_losint(double zp, void *params) {
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(1000);
     gsl_function F;
     F.function = &jam_axi_vel_mgeint;
-    
+    gsl_set_error_handler_off(); //Tadeja was here
     sum = 0.;
     for (i=0; i<lp->lum->ntotal; i++) {
         if (lp->kappa[i]==0.) sign_kappa = 0.;
@@ -74,7 +76,7 @@ double jam_axi_vel_losint(double zp, void *params) {
         mp.q2l = lp->q2l[i];
         mp.s2q2l = lp->s2q2l[i];
         F.params = &mp;
-        gsl_integration_qag(&F, 0., 1., 0., 1e-5, 1000, 6, w, &result, &error);
+        status += gsl_integration_qag(&F, 0., 1., 0., 1e-5, 1000, 6, w, &result, &error);
         sum += sign_kappa * pow(lp->kappa[i], 2) * nu_i * fabs(result);
     }
     
@@ -88,6 +90,18 @@ double jam_axi_vel_losint(double zp, void *params) {
     
     intg *= pow(zp, lp->zpow);
     
+    // if you want to test the gsl flagging thing uncomment these two lines
+    int test = 1;// Tadeja
+    status += test; // Tadeja
+    //bla = *lp->gslFlag_losint;
+    //printf("bla: %i, gsl flag: %d\n", bla,  *lp->gslFlag_losint);
+    if (status > 0 && *lp->gslFlag_losint<=10) { // the limiting value is very arbitrary
+        //printf("losint gsl fail\n"); // Tadeja
+        *lp->gslFlag_losint += 1;   }// Tadeja
+
+    if (status > 0 && *lp->gslFlag_losint>10) { // the limiting value is very arbitrary
+        //printf("losint gsl fail\n");// Tadeja
+        *lp->gslFlag_losint -= 1;   }// Tadeja
     return intg;
     
 }

@@ -36,7 +36,7 @@ void jam_axi_rms(double *xp, double *yp, int nxy, double incl, \
 double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
 double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
 double *beta, int nrad, int nang, double *rxx, double *ryy, double *rzz,
-double *rxy, double *rxz, double *ryz) {
+double *rxy, double *rxz, double *ryz, int *gslFlag_rms) {
     
     struct multigaussexp lum, pot;
     double* mu;
@@ -84,18 +84,14 @@ double *rxy, double *rxz, double *ryz) {
         for (i=0; i<nxy; i++) rxz[i] = 0.;
         for (i=0; i<nxy; i++) ryz[i] = 0.;
     }
-    
+    //printf("rms.c %d\n", *gslFlag);
     if (*gslFlag > 0) {
-       	printf("\nCJAM error: gsl round off occured in calculation of 2nd moments. Setting all second momments to 0\n");
-	for (i=0; i<nxy; i++) rxx[i] = 0.;
-       	for (i=0; i<nxy; i++) ryy[i] = 0.;
-       	for (i=0; i<nxy; i++) rzz[i] = 0.;
-       	for (i=0; i<nxy; i++) rxy[i] = 0.;
-       	for (i=0; i<nxy; i++) rxz[i] = 0.;
-       	for (i=0; i<nxy; i++) ryz[i] = 0.;
-    }
+       	printf("\nCJAM error: gsl round off occured in calculation of 2nd moments, returning False\n");
+	}
+    *gslFlag_rms += *gslFlag;
+    //printf("rms.c %d\n", *gslFlag_rms);
+    
 
-    // free memory
     free(mu);
     
     return;

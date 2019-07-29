@@ -42,6 +42,7 @@ struct params_losint {
     struct multigaussexp *lum, *pot;
     double xp, yp, incl, *bani, *s2l, *q2l, *s2q2l, *s2p, *e2p, *kappa;
     double zpow;
+    int *gslFlag_losint;
 };
 
 struct params_mgeint {
@@ -66,7 +67,7 @@ void jam_axi_rms(double *xp, double *yp, int nxy, double incl, \
     double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
     double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
     double *beta, int nrad, int nang, double *rxx, double *ryy, double *rzz, \
-    double *rxy, double *rxz, double *ryz);
+    double *rxy, double *rxz, double *ryz, int *gslFlag_rms);
 
 double jam_axi_rms_mgeint( double, void * );
 

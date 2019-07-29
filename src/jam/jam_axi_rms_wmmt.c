@@ -39,7 +39,7 @@
 
 double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
         struct multigaussexp *lum, struct multigaussexp *pot, \
-        double *beta, int vv , int *gslFlag) {
+        double *beta, int vv , int *gslFlag_rms) {
     
     struct params_rmsint p;
     struct multigaussexp ilum, ipot;
@@ -115,7 +115,9 @@ double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
     int test = 1;
     status += test; 
     */
-    if (status > 0) { *gslFlag += 1;   }    
+    printf("status: %d\n", status);
+    if (status > 0) { *gslFlag_rms += 1;   }    
+    printf("rms_wmmt.c %d\n", *gslFlag_rms);
 
 
     gsl_integration_workspace_free( w );

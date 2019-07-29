@@ -84,6 +84,7 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     cdef double [:] c_rxy
     cdef double [:] c_rxz
     cdef double [:] c_ryz
+    cdef int c_gslFlag_rms = 0
     
     # set C arrays to be views into the input arrays
     c_xp = np.array(xp, dtype=np.double, copy=False)
@@ -116,12 +117,12 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
             &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
             &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
             &c_beta[0], nrad, nang, &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
-            &c_rxz[0], &c_ryz[0])
+            &c_rxz[0], &c_ryz[0], &c_gslFlag_rms)
     except:
         print("CJAM second moments failed in axi_rms.")
         return False
     
-    return rxx, ryy, rzz, rxy, rxz, ryz
+    return rxx, ryy, rzz, rxy, rxz, ryz, c_gslFlag_rms
 
 
 
@@ -171,7 +172,7 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
     
     # calculate second moments
     try:
-        rxx, ryy, rzz, rxy, rxz, ryz = axi_rms(\
+        rxx, ryy, rzz, rxy, rxz, ryz, gslFlag_rms = axi_rms(\
             (xp*distance/u.rad).to("pc").value,
             (yp*distance/u.rad).to("pc").value,
             incl.to("rad").value,
@@ -184,13 +185,13 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
             beta,
             nrad,
             nang)
+        print("In jam_pyx: {}".format(gslFlag_rms))
     except:
         print("CJAM second moments failed in axisymmetric.")
         return False
     
-    if (np.sum(rxx)==0.) & (np.sum(ryy)==0.) & (np.sum(rzz)==0.) &\
-       	(np.sum(rxy)==0.) & (np.sum(rxz)==0.) & (np.sum(ryz)==0.): # Tadeja was here
-       	#print("gsl roundoff error occured. The model is not good") # Tadeja was here
+    if (gslFlag_rms > 0):
+	#print("gsl roundoff error occured. The model is not good") # Tadeja was here
         return False # Tadeja was here
    
     # put results into astropy table, also convert PMs to mas/yr

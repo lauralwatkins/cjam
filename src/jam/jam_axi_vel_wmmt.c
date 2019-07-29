@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <gsl/gsl_integration.h>
+#include <gsl/gsl_errno.h>
 #include "jam.h"
 #include "../mge/mge.h"
 #include "../tools/tools.h"
@@ -45,6 +46,8 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     double lim, result, error, si, ci, trpig, **sb_mu1;
     int i;
     size_t neval;
+    int status = 0, *gslFlag; // Tadeja was here
+    int TadejaVar = 0; gslFlag = &TadejaVar; //Tadeja was here
     
     // ---------------------------------
     
@@ -85,6 +88,9 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     lp.s2p = s2p;
     lp.e2p = e2p;
     lp.kappa = kappa;
+    lp.gslFlag_losint = gslFlag; // Tadeja
+
+    printf("and this is??:%d\n", *lp.gslFlag_losint); // Tadeja
     
     // ---------------------------------
     
@@ -93,7 +99,7 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     gsl_integration_cquad_workspace *ww = gsl_integration_cquad_workspace_alloc(1000);
     gsl_function F;
     F.function = &jam_axi_vel_losint;
-    
+
     // trig angles
     si = sin( incl );
     ci = cos( incl );
@@ -113,6 +119,7 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
         lp.zpow = 0.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
+        //F.gslFlag_losint = &gslFlag; // Tadeja was here
         gsl_integration_cquad(&F, -lim, lim, 0., 1e-4, ww, &result,
             &error, &neval);
         iz0[i] = result;
@@ -121,14 +128,35 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
         lp.zpow = 1.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
-        gsl_integration_qag( &F, -lim, lim, 1., 1., 1000, 2, w,
-            &result, &error );
+        // F.gslFlag_losint = &gslFlag; // Tadeja was here
+        gsl_set_error_handler_off();    // Tadeja was here
+        status += gsl_integration_qag( &F, -lim, lim, 1., 1., 1000, 2, w,
+            &result, &error ); // Tadeja was here
+        
+        printf("not the gslFlag: %d\n", *gslFlag ); //Tadeja
+        // /*
+        int test = 1;// Tadeja
+        status += test; // Tadeja
+        if (status > 0 && *gslFlag<20) { // the limiting value is very arbitrary
+        //printf("losint gsl fail\n"); // Tadeja
+            *gslFlag += 1;   }// Tadeja
+
+        if (status > 0 && *gslFlag>=20) { // the limiting value is very arbitrary
+        //printf("losint gsl fail\n");// Tadeja
+            *gslFlag -= 1;   }// Tadeja
+        //  OK THIS IS WHERE I LEFT OFF. THINK WHETHER THIS IS REALLY AN OK IMPLEMENTATION !!!
+        printf("not the gslFlag: %d\n", *gslFlag ); //Tadeja
+
+        // */
+        printf("does it break after?\n");
+        printf("and this is after??:%d\n", *lp.gslFlag_losint); // Tadeja
+        
         if ( fabs( result ) > 1e-6 ) {
             gsl_integration_cquad(&F, -lim, lim, 0., 1e-3, ww, &result,
                 &error, &neval);
         }
         iz1[i] = result;
-        
+        //printf("In the wmmt axi vel status is: %i \n", status);
     }
     
     // tidy up

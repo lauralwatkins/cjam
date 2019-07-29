@@ -40,7 +40,7 @@
 
 double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
         struct multigaussexp *lum, struct multigaussexp *pot, double *beta, \
-        int nrad, int nang, int vv , int *gslFlag) {
+        int nrad, int nang, int vv , int *gslFlag_rms) {
     
     int i, j, k, npol;
     double qmed, *rell, *r, *e, step, rmax, *lograd, *rad, *ang, *angvec;
@@ -51,7 +51,7 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     if ( nrad * nang > nxy ) {
         
         // weighted second moment
-        wm2 = jam_axi_rms_wmmt( xp, yp, nxy, incl, lum, pot, beta, vv, gslFlag);
+        wm2 = jam_axi_rms_wmmt( xp, yp, nxy, incl, lum, pot, beta, vv, gslFlag_rms);
         
         if ( vv == 4 ) {
             for ( i = 0; i < nxy; i++ ) {
@@ -126,7 +126,7 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     
     
     // weighted second moment on polar grid
-    wm2 = jam_axi_rms_wmmt( xpol, ypol, npol, incl, lum, pot, beta, vv, gslFlag );
+    wm2 = jam_axi_rms_wmmt( xpol, ypol, npol, incl, lum, pot, beta, vv, gslFlag_rms );
     
     // surface brightness on polar grid
     surf = mge_surf( lum, xpol, ypol, npol );
@@ -187,6 +187,7 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     free( surf );
     free( r );
     free( e );
+    printf("rms_mmt.c %d\n", *gslFlag_rms);
     
     return mu;
     
