@@ -34,11 +34,12 @@ void jam_axi_vel(double *xp, double *yp, int nxy, double incl, \
 double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
 double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
 double *beta, double *kappa, int nrad, int nang, double *vx, double *vy, \
-double *vz) {
+double *vz, int *gslFlag_vel) {
     
     struct multigaussexp lum, pot;
     struct jam_vel vm;
-    int i, j, k, check;
+    int i, j, k, check, *gslFlag;
+    int GSLVar = 0; gslFlag = &GSLVar;
     
     // put luminous MGE components into structure
     lum.area = lum_area;
@@ -61,7 +62,7 @@ double *vz) {
     if (check>0) {
         // calculate moments and put into results arrays
         vm = jam_axi_vel_mmt(xp, yp, nxy, incl, &lum, &pot, beta, kappa,
-            nrad, nang);
+            nrad, nang, gslFlag);
         for (i=0; i<nxy; i++) {
             vx[i] = vm.vx[i];
             vy[i] = vm.vy[i];
@@ -80,6 +81,10 @@ double *vz) {
             vz[i] = 0.;
         }
     }
+    if (*gslFlag > 0) {
+       	printf("\nCJAM error: gsl round off occured in calculation of 1st moments, returning False\n");
+	}
+    *gslFlag_vel += *gslFlag;
     
     return;
 }

@@ -82,7 +82,7 @@ void jam_axi_vel(double *xp, double *yp, int nxy, double incl, \
     double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
     double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
     double *beta, double *kappa, int nrad, int nang, double *vx, double *vy, \
-    double *vz);
+    double *vz, int *gslFlag_vel);
 
 double jam_axi_vel_losint( double, void * );
 
@@ -90,7 +90,7 @@ double jam_axi_vel_mgeint( double, void * );
 
 struct jam_vel jam_axi_vel_mmt( double *, double *, int, double, \
     struct multigaussexp *, struct multigaussexp *, double *, double *, \
-    int, int );
+    int, int , int *);
 
 double** jam_axi_vel_wmmt( double *, double *, int, double, \
-    struct multigaussexp *, struct multigaussexp *, double *, double * );
+    struct multigaussexp *, struct multigaussexp *, double *, double *, int * );

@@ -187,7 +187,6 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     free( surf );
     free( r );
     free( e );
-    printf("rms_mmt.c %d\n", *gslFlag_rms);
     
     return mu;
     

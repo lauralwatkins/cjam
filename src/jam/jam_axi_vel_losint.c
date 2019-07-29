@@ -36,7 +36,7 @@ double jam_axi_vel_losint(double zp, void *params) {
     double xp, yp, si, ci, r, z, r2, z2, nu, intg, result, error, nu_i;
     double sign_kappa, sum;
     int i;
-    int status = 0;//, bla; // Tadeja was here
+    int status = 0;
     
     // get parameters
     lp = params;
@@ -64,7 +64,7 @@ double jam_axi_vel_losint(double zp, void *params) {
     gsl_integration_workspace *w = gsl_integration_workspace_alloc(1000);
     gsl_function F;
     F.function = &jam_axi_vel_mgeint;
-    gsl_set_error_handler_off(); //Tadeja was here
+    gsl_set_error_handler_off(); 
     sum = 0.;
     for (i=0; i<lp->lum->ntotal; i++) {
         if (lp->kappa[i]==0.) sign_kappa = 0.;
@@ -90,18 +90,15 @@ double jam_axi_vel_losint(double zp, void *params) {
     
     intg *= pow(zp, lp->zpow);
     
-    // if you want to test the gsl flagging thing uncomment these two lines
+    /*// if you want to test the gsl flagging thing uncomment these two lines
     int test = 1;// Tadeja
     status += test; // Tadeja
-    //bla = *lp->gslFlag_losint;
-    //printf("bla: %i, gsl flag: %d\n", bla,  *lp->gslFlag_losint);
-    if (status > 0 && *lp->gslFlag_losint<=10) { // the limiting value is very arbitrary
-        //printf("losint gsl fail\n"); // Tadeja
-        *lp->gslFlag_losint += 1;   }// Tadeja
+    */
+    if (status > 0 && *lp->gslFlag_losint<=10) { // the limiting value is very arbitrary so that the values do not exceed allowed size for integers
+        *lp->gslFlag_losint += 1;   }
 
-    if (status > 0 && *lp->gslFlag_losint>10) { // the limiting value is very arbitrary
-        //printf("losint gsl fail\n");// Tadeja
-        *lp->gslFlag_losint -= 1;   }// Tadeja
+    if (status > 0 && *lp->gslFlag_losint>10) { // the limiting value is very arbitrary so that the values do not exceed allowed size for integers
+        *lp->gslFlag_losint -= 1;   }
     return intg;
     
 }

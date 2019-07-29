@@ -115,9 +115,7 @@ double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
     int test = 1;
     status += test; 
     */
-    printf("status: %d\n", status);
-    if (status > 0) { *gslFlag_rms += 1;   }    
-    printf("rms_wmmt.c %d\n", *gslFlag_rms);
+    if (status > 0) { *gslFlag_rms += 1;   }
 
 
     gsl_integration_workspace_free( w );
