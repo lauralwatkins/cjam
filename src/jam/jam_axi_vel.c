@@ -82,7 +82,7 @@ double *vz, int *gslFlag_vel) {
         }
     }
     if (*gslFlag > 0) {
-       	printf("\nCJAM error: gsl round off occured in calculation of 1st moments, returning False\n");
+       	printf("\nCJAM error: gsl round off occurred in calculation of the 1st moments, returning False.\n");
 	}
     *gslFlag_vel += *gslFlag;
     

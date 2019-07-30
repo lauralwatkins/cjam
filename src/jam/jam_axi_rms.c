@@ -86,7 +86,7 @@ double *rxy, double *rxz, double *ryz, int *gslFlag_rms) {
     }
     //printf("rms.c %d\n", *gslFlag);
     if (*gslFlag > 0) {
-       	printf("\nCJAM error: gsl round off occured in calculation of 2nd moments, returning False\n");
+       	printf("\nCJAM error: gsl round off occurred in the calculation of 2nd moments, returning False.\n");
 	}
     *gslFlag_rms += *gslFlag;
     //printf("rms.c %d\n", *gslFlag_rms);
