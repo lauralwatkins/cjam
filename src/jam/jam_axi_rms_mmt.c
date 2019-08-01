@@ -40,18 +40,24 @@
 
 double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
         struct multigaussexp *lum, struct multigaussexp *pot, double *beta, \
-        int nrad, int nang, int vv , int *gslFlag_rms) {
+        int nrad, int nang, int vv, int* integrationFlag) {
     
     int i, j, k, npol;
     double qmed, *rell, *r, *e, step, rmax, *lograd, *rad, *ang, *angvec;
     double *wm2, *surf, *mu, *xpol, *ypol, **mupol;
     
+    // check that integration flag is zero or don't proceed
+    if (*integrationFlag!=0) {
+        mu = (double *) malloc(nxy*sizeof(double));
+        return mu;
+    }
     
     // skip the interpolation when computing just a few points
     if ( nrad * nang > nxy ) {
         
         // weighted second moment
-        wm2 = jam_axi_rms_wmmt( xp, yp, nxy, incl, lum, pot, beta, vv, gslFlag_rms);
+        wm2 = jam_axi_rms_wmmt(xp, yp, nxy, incl, lum, pot, beta, vv, \
+            integrationFlag);
         
         if ( vv == 4 ) {
             for ( i = 0; i < nxy; i++ ) {
@@ -126,7 +132,8 @@ double* jam_axi_rms_mmt( double *xp, double *yp, int nxy, double incl, \
     
     
     // weighted second moment on polar grid
-    wm2 = jam_axi_rms_wmmt( xpol, ypol, npol, incl, lum, pot, beta, vv, gslFlag_rms );
+    wm2 = jam_axi_rms_wmmt(xpol, ypol, npol, incl, lum, pot, beta, vv, \
+        integrationFlag);
     
     // surface brightness on polar grid
     surf = mge_surf( lum, xpol, ypol, npol );

@@ -37,7 +37,7 @@
 
 double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
         struct multigaussexp *lum, struct multigaussexp *pot, \
-        double *beta, double *kappa, int *gslFlag_vel ) {
+        double *beta, double *kappa, int* integrationFlag) {
     
     struct params_losint lp;
     struct multigaussexp ilum, ipot;
@@ -46,8 +46,6 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     double lim, result, error, si, ci, trpig, **sb_mu1;
     int i;
     size_t neval;
-    int status = 0, *gslFlag;
-    int TadejaVar = 0; gslFlag = &TadejaVar;
     
     // ---------------------------------
     
@@ -88,16 +86,17 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     lp.s2p = s2p;
     lp.e2p = e2p;
     lp.kappa = kappa;
-    lp.gslFlag_losint = gslFlag;
+    lp.integrationFlag = integrationFlag;
     
     // ---------------------------------
     
     // set up integration
     gsl_integration_workspace *w = gsl_integration_workspace_alloc( 1000 );
     gsl_integration_cquad_workspace *ww = gsl_integration_cquad_workspace_alloc(1000);
+    gsl_set_error_handler_off();
     gsl_function F;
     F.function = &jam_axi_vel_losint;
-
+    
     // trig angles
     si = sin( incl );
     ci = cos( incl );
@@ -117,33 +116,22 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
         lp.zpow = 0.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
-        gsl_integration_cquad(&F, -lim, lim, 0., 1e-4, ww, &result,
-            &error, &neval);
+        *integrationFlag += gsl_integration_cquad(&F, -lim, lim, 0., 1e-4, ww,
+            &result, &error, &neval);
         iz0[i] = result;
         
         // do z^1 integral
         lp.zpow = 1.;
         F.function = &jam_axi_vel_losint;
         F.params = &lp;
-        gsl_set_error_handler_off();    
-        status += gsl_integration_qag( &F, -lim, lim, 1., 1., 1000, 2, w,
-            &result, &error ); 
-         /* uncomment these two lines for testing
-        int test = 1;// Tadeja
-        status += test; // Tadeja
-        */
-        if (status > 0 && *gslFlag<20) { // the limiting value is very arbitrary
-            *gslFlag_vel += 1;   }
-
-        if (status > 0 && *gslFlag>=20) { // the limiting value is very arbitrary so that the values do not exceed allowed size for integers
-            *gslFlag_vel -= 1;   }
-        *gslFlag_vel += *gslFlag; // if there was an integration error in losint
-
+        *integrationFlag += gsl_integration_qag(&F, -lim, lim, 1., 1., 1000,
+            2, w, &result, &error);
         if ( fabs( result ) > 1e-6 ) {
-            gsl_integration_cquad(&F, -lim, lim, 0., 1e-3, ww, &result,
-                &error, &neval);
+            *integrationFlag += gsl_integration_cquad(&F, -lim, lim, 0., 1e-3,
+                ww, &result, &error, &neval);
         }
         iz1[i] = result;
+        
     }
     
     // tidy up
@@ -175,7 +163,7 @@ double** jam_axi_vel_wmmt( double *xp, double *yp, int nxy, double incl, \
     
     free( iz0 );
     free( iz1 );
-       
+    
     return sb_mu1;
     
 }

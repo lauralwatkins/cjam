@@ -42,7 +42,7 @@ struct params_losint {
     struct multigaussexp *lum, *pot;
     double xp, yp, incl, *bani, *s2l, *q2l, *s2q2l, *s2p, *e2p, *kappa;
     double zpow;
-    int *gslFlag_losint;
+    int* integrationFlag;
 };
 
 struct params_mgeint {
@@ -66,23 +66,24 @@ struct params_rmsint {
 void jam_axi_rms(double *xp, double *yp, int nxy, double incl, \
     double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
     double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
-    double *beta, int nrad, int nang, double *rxx, double *ryy, double *rzz, \
-    double *rxy, double *rxz, double *ryz, int *gslFlag_rms);
+    double *beta, int nrad, int nang, int* integrationFlag, \
+    double *rxx, double *ryy, double *rzz, \
+    double *rxy, double *rxz, double *ryz);
 
 double jam_axi_rms_mgeint( double, void * );
 
 double* jam_axi_rms_mmt( double *,double *, int, double, \
     struct multigaussexp *, struct multigaussexp *, double *, \
-    int, int, int , int *);
+    int, int, int, int*);
 
 double* jam_axi_rms_wmmt( double *, double *, int, double, \
-    struct multigaussexp *, struct multigaussexp *, double *, int , int *);
+    struct multigaussexp *, struct multigaussexp *, double *, int, int*);
 
 void jam_axi_vel(double *xp, double *yp, int nxy, double incl, \
     double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
     double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
-    double *beta, double *kappa, int nrad, int nang, double *vx, double *vy, \
-    double *vz, int *gslFlag_vel);
+    double *beta, double *kappa, int nrad, int nang, int* integrationFlag, \
+    double *vx, double *vy, double *vz);
 
 double jam_axi_vel_losint( double, void * );
 
@@ -90,7 +91,7 @@ double jam_axi_vel_mgeint( double, void * );
 
 struct jam_vel jam_axi_vel_mmt( double *, double *, int, double, \
     struct multigaussexp *, struct multigaussexp *, double *, double *, \
-    int, int , int *);
+    int, int, int*);
 
 double** jam_axi_vel_wmmt( double *, double *, int, double, \
-    struct multigaussexp *, struct multigaussexp *, double *, double *, int * );
+    struct multigaussexp *, struct multigaussexp *, double *, double *, int*);

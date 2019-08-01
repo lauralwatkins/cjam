@@ -39,7 +39,8 @@
 
 struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
         double incl, struct multigaussexp *lum, struct multigaussexp *pot, \
-        double *beta, double *kappa, int nrad, int nang, int *gslFlag_vel ) {
+        double *beta, double *kappa, int nrad, int nang, \
+        int* integrationFlag) {
     
     int i, j, k, v, npol;
     double qmed, *rell, *r, *e, step, rmax, *lograd, *rad, *ang, *angvec;
@@ -51,11 +52,17 @@ struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
     mu.vy = (double *) malloc( nxy * sizeof( double ) );
     mu.vz = (double *) malloc( nxy * sizeof( double ) );
     
+    // check that integration flag is zero or don't proceed
+    if (*integrationFlag!=0) {
+        return mu;
+    }
+    
     // skip the interpolation when computing just a few points
     if ( nrad * nang > nxy ) {
         
         // weighted first moments
-        wm1 = jam_axi_vel_wmmt( xp, yp, nxy, incl, lum, pot, beta, kappa, gslFlag_vel );
+        wm1 = jam_axi_vel_wmmt(xp, yp, nxy, incl, lum, pot, beta, kappa,
+            integrationFlag);
         
         // surface brightness
         surf = mge_surf( lum, xp, yp, nxy );
@@ -91,7 +98,7 @@ struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
     
     // make linear grid in log of elliptical radius
     rmax = maximum( rell, nxy );
-    lograd = range( log( step ) - 0.1, log( rmax ) + 0.1, nrad, False ); 
+    lograd = range( log( step ) - 0.1, log( rmax ) + 0.1, nrad, False );
     rad = (double *) malloc( nrad * sizeof( double ) );
     for ( i = 0; i < nrad; i++ ) rad[i] = exp( lograd[i] );
     
@@ -127,7 +134,8 @@ struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
     }
     
     // weighted first moments on polar grid
-    wm1 = jam_axi_vel_wmmt( xpol, ypol, npol, incl, lum, pot, beta, kappa, gslFlag_vel );
+    wm1 = jam_axi_vel_wmmt(xpol, ypol, npol, incl, lum, pot, beta, kappa,
+        integrationFlag);
     
     // surface brightness on polar grid
     surf = mge_surf( lum, xpol, ypol, npol );

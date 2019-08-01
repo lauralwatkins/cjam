@@ -26,7 +26,10 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     cdef double [:] c_vx
     cdef double [:] c_vy
     cdef double [:] c_vz
-    cdef int c_gslFlag_vel = 0
+    cdef int c_integrationFlag
+    
+    # initialise integration error flag
+    c_integrationFlag = 0
     
     # set C arrays to be views into the input arrays
     c_xp = np.array(xp, dtype=np.double, copy=False)
@@ -53,12 +56,18 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
         cython_jam.jam_axi_vel(&c_xp[0], &c_yp[0], nxy, incl,
             &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
             &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
-            &c_beta[0], &c_kappa[0], nrad, nang, &c_vx[0], &c_vy[0], &c_vz[0], &c_gslFlag_vel)
+            &c_beta[0], &c_kappa[0], nrad, nang, &c_integrationFlag,
+            &c_vx[0], &c_vy[0], &c_vz[0])
     except:
         print("CJAM first moments failed in axi_vel.")
         return False
     
-    return vx, vy, vz, c_gslFlag_vel
+    # check if integration failed
+    if c_integrationFlag!=0:
+        print("CJAM first moments integration failed.")
+        return False
+
+    return vx, vy, vz
 
 
 
@@ -85,7 +94,10 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     cdef double [:] c_rxy
     cdef double [:] c_rxz
     cdef double [:] c_ryz
-    cdef int c_gslFlag_rms = 0
+    cdef int c_integrationFlag
+    
+    # initialise integration error flag
+    c_integrationFlag = 0
     
     # set C arrays to be views into the input arrays
     c_xp = np.array(xp, dtype=np.double, copy=False)
@@ -117,13 +129,19 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
         cython_jam.jam_axi_rms(&c_xp[0], &c_yp[0], nxy, incl,
             &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
             &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
-            &c_beta[0], nrad, nang, &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
-            &c_rxz[0], &c_ryz[0], &c_gslFlag_rms)
+            &c_beta[0], nrad, nang, &c_integrationFlag,
+            &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
+            &c_rxz[0], &c_ryz[0])
     except:
         print("CJAM second moments failed in axi_rms.")
         return False
     
-    return rxx, ryy, rzz, rxy, rxz, ryz, c_gslFlag_rms
+    # check if integration failed
+    if c_integrationFlag!=0:
+        print("CJAM second moments integration failed.")
+        return False
+    
+    return rxx, ryy, rzz, rxy, rxz, ryz
 
 
 
@@ -153,7 +171,7 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
     
     # calculate first moments
     try:
-        vx, vy, vz, gslFlag_vel = axi_vel(\
+        vx, vy, vz = axi_vel(\
             (xp*distance/u.rad).to("pc").value,
             (yp*distance/u.rad).to("pc").value,
             incl.to("rad").value,
@@ -167,17 +185,13 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
             kappa,
             nrad,
             nang)
-        
     except:
         print("CJAM first moments failed in axisymmetric.")
         return False
     
-    if (gslFlag_vel > 0): # gsl roundoff error occured. The model is not good
-        return False
-    
     # calculate second moments
     try:
-        rxx, ryy, rzz, rxy, rxz, ryz, gslFlag_rms = axi_rms(\
+        rxx, ryy, rzz, rxy, rxz, ryz = axi_rms(\
             (xp*distance/u.rad).to("pc").value,
             (yp*distance/u.rad).to("pc").value,
             incl.to("rad").value,
@@ -190,14 +204,10 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
             beta,
             nrad,
             nang)
-        
     except:
         print("CJAM second moments failed in axisymmetric.")
         return False
     
-    if (gslFlag_rms > 0): # gsl roundoff error occured. The model is not good
-        return False
-   
     # put results into astropy table, also convert PMs to mas/yr
     kms2masyr = (u.km/u.s*u.rad/distance).to("mas/yr")
     moments = table.QTable()
