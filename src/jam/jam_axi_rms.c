@@ -36,12 +36,12 @@ void jam_axi_rms(double *xp, double *yp, int nxy, double incl, \
 double *lum_area, double *lum_sigma, double *lum_q, int lum_total, \
 double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
 double *beta, int nrad, int nang, double *rxx, double *ryy, double *rzz,
-double *rxy, double *rxz, double *ryz) {
+double *rxy, double *rxz, double *ryz, int *gslFlag_rms) {
     
     struct multigaussexp lum, pot;
     double* mu;
-    int i, check;
-    
+    int i, check, *gslFlag;
+    int GSLVar = 0; gslFlag = &GSLVar;
     // put luminous MGE components into structure
     lum.area = lum_area;
     lum.sigma = lum_sigma;
@@ -55,7 +55,7 @@ double *rxy, double *rxz, double *ryz) {
     pot.ntotal = pot_total;
     
     // calculate xx moments and put into results array
-    mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 1);
+    mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 1, gslFlag);
     for (i=0; i<nxy; i++) rxx[i] = mu[i];
     
     // check for any non-zero beta or non-unity flattening
@@ -66,15 +66,15 @@ double *rxy, double *rxz, double *ryz) {
     
     // for anisotropic models, calculate the 
     if (check>0) {
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 2);
+        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 2, gslFlag);
         for (i=0; i<nxy; i++) ryy[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 3);
+        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 3, gslFlag);
         for (i=0; i<nxy; i++) rzz[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 4);
+        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 4, gslFlag);
         for (i=0; i<nxy; i++) rxy[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 5);
+        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 5, gslFlag);
         for (i=0; i<nxy; i++) rxz[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 6);
+        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 6, gslFlag);
         for (i=0; i<nxy; i++) ryz[i] = mu[i];
     }
     else {
@@ -84,8 +84,14 @@ double *rxy, double *rxz, double *ryz) {
         for (i=0; i<nxy; i++) rxz[i] = 0.;
         for (i=0; i<nxy; i++) ryz[i] = 0.;
     }
+    //printf("rms.c %d\n", *gslFlag);
+    if (*gslFlag > 0) {
+       	printf("\nCJAM error: gsl round off occurred in the calculation of 2nd moments, returning False.\n");
+	}
+    *gslFlag_rms += *gslFlag;
+    //printf("rms.c %d\n", *gslFlag_rms);
     
-    // free memory
+
     free(mu);
     
     return;

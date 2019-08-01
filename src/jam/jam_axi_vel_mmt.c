@@ -39,7 +39,7 @@
 
 struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
         double incl, struct multigaussexp *lum, struct multigaussexp *pot, \
-        double *beta, double *kappa, int nrad, int nang ) {
+        double *beta, double *kappa, int nrad, int nang, int *gslFlag_vel ) {
     
     int i, j, k, v, npol;
     double qmed, *rell, *r, *e, step, rmax, *lograd, *rad, *ang, *angvec;
@@ -55,7 +55,7 @@ struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
     if ( nrad * nang > nxy ) {
         
         // weighted first moments
-        wm1 = jam_axi_vel_wmmt( xp, yp, nxy, incl, lum, pot, beta, kappa );
+        wm1 = jam_axi_vel_wmmt( xp, yp, nxy, incl, lum, pot, beta, kappa, gslFlag_vel );
         
         // surface brightness
         surf = mge_surf( lum, xp, yp, nxy );
@@ -127,7 +127,7 @@ struct jam_vel jam_axi_vel_mmt( double *xp, double *yp, int nxy, \
     }
     
     // weighted first moments on polar grid
-    wm1 = jam_axi_vel_wmmt( xpol, ypol, npol, incl, lum, pot, beta, kappa );
+    wm1 = jam_axi_vel_wmmt( xpol, ypol, npol, incl, lum, pot, beta, kappa, gslFlag_vel );
     
     // surface brightness on polar grid
     surf = mge_surf( lum, xpol, ypol, npol );

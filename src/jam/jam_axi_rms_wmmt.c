@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <gsl/gsl_integration.h>
+#include <gsl/gsl_errno.h>
 #include "jam.h"
 #include "../mge/mge.h"
 #include "../tools/tools.h"
@@ -38,13 +39,14 @@
 
 double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
         struct multigaussexp *lum, struct multigaussexp *pot, \
-        double *beta, int vv ) {
+        double *beta, int vv , int *gslFlag_rms) {
     
     struct params_rmsint p;
     struct multigaussexp ilum, ipot;
     double ci, si, *kani, *s2l, *q2l, *s2q2l, *s2p, *e2p;
     double result, error, *sb_mu2;
     int i;
+    int status = 0;
     
     // convert from projected MGEs to intrinsic MGEs
     ilum = mge_deproject( lum, incl );
@@ -95,6 +97,7 @@ double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
     
     gsl_integration_workspace *w = gsl_integration_workspace_alloc( 1000 );
     gsl_function F;
+    gsl_set_error_handler_off();
     F.function = &jam_axi_rms_mgeint;
     
     sb_mu2 = (double *) malloc( nxy * sizeof( double ) );
@@ -103,11 +106,18 @@ double *jam_axi_rms_wmmt( double *xp, double *yp, int nxy, double incl, \
         p.y2 = yp[i] * yp[i];
         p.xy = xp[i] * yp[i];
         F.params = &p;
-        gsl_integration_qag( &F, 0., 1., 0., 1e-5, 1000, 6, w, \
+        status += gsl_integration_qag( &F, 0., 1., 0., 1e-5, 1000, 6, w, \
             &result, &error );
         sb_mu2[i] = result;
     }
-    
+
+    /*// if you want to test the gsl flagging thing uncomment these two lines
+    int test = 1;
+    status += test; 
+    */
+    if (status > 0) { *gslFlag_rms += 1;   }
+
+
     gsl_integration_workspace_free( w );
     
     free( kani );
