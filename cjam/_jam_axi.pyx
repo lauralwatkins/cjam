@@ -1,5 +1,6 @@
 # Python wrappers for JAM functions in C.
 
+from __future__ import print_function
 import numpy as np
 from astropy import table, units as u
 cimport cython_jam
@@ -65,12 +66,12 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
             &c_beta[0], &c_kappa[0], c_nrad, c_nang, &c_integrationFlag,
             &c_vx[0], &c_vy[0], &c_vz[0])
     except:
-        print("CJAM first moments failed in axi_vel.")
+        print("CJAM first moments failed in axi_vel.", flush=True)
         return False
     
     # check if integration failed
     if c_integrationFlag!=0:
-        print("CJAM first moments integration failed.")
+        print("CJAM first moments integration failed.", flush=True)
         return False
     
     return c_vx, c_vy, c_vz
@@ -142,12 +143,12 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
             &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
             &c_rxz[0], &c_ryz[0])
     except:
-        print("CJAM second moments failed in axi_rms.")
+        print("CJAM second moments failed in axi_rms.", flush=True)
         return False
     
     # check if integration failed
     if c_integrationFlag!=0:
-        print("CJAM second moments integration failed.")
+        print("CJAM second moments integration failed.", flush=True)
         return False
     
     return c_rxx, c_ryy, c_rzz, c_rxy, c_rxz, c_ryz
@@ -195,7 +196,7 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
             nrad,
             nang)
     except:
-        print("CJAM first moments failed in axisymmetric.")
+        print("CJAM first moments failed in axisymmetric.", flush=True)
         return False
     
     # calculate second moments
@@ -214,7 +215,7 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
             nrad,
             nang)
     except:
-        print("CJAM second moments failed in axisymmetric.")
+        print("CJAM second moments failed in axisymmetric.", flush=True)
         return False
     
     # put results into astropy table, also convert PMs to mas/yr
