@@ -7,11 +7,6 @@ cimport cython_jam
 
 def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q, beta, kappa, nrad=30, nang=7):
     
-    # get array lengths needed for C
-    nxy = len(xp)
-    lum_total = len(lum_area)
-    pot_total = len(pot_area)
-    
     # set array types for C
     cdef double [:] c_xp
     cdef double [:] c_yp
@@ -26,7 +21,21 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     cdef double [:] c_vx
     cdef double [:] c_vy
     cdef double [:] c_vz
+    cdef double c_incl
+    cdef int c_nxy
+    cdef int c_lum_total
+    cdef int c_pot_total
+    cdef int c_nrad
+    cdef int c_nang
     cdef int c_integrationFlag
+    
+    # set c inputs
+    c_nxy = len(xp)
+    c_lum_total = len(lum_area)
+    c_pot_total = len(pot_area)
+    c_nrad = nrad
+    c_nang = nang
+    c_incl = incl
     
     # initialise integration error flag
     c_integrationFlag = 0
@@ -43,20 +52,17 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     c_beta = np.array(beta, dtype=np.double, copy=False)
     c_kappa = np.array(kappa, dtype=np.double, copy=False)
     
-    # create empty arrays to store the result and create C views into them
-    vx = np.zeros(nxy)
-    c_vx = vx
-    vy = np.zeros(nxy)
-    c_vy = vy
-    vz = np.zeros(nxy)
-    c_vz = vz
+    # create empty arrays to store the result
+    c_vx = np.zeros(c_nxy)
+    c_vy = np.zeros(c_nxy)
+    c_vz = np.zeros(c_nxy)
     
     # now call the JAM code
     try:
-        cython_jam.jam_axi_vel(&c_xp[0], &c_yp[0], nxy, incl,
-            &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
-            &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
-            &c_beta[0], &c_kappa[0], nrad, nang, &c_integrationFlag,
+        cython_jam.jam_axi_vel(&c_xp[0], &c_yp[0], c_nxy, c_incl,
+            &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], c_lum_total,
+            &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], c_pot_total,
+            &c_beta[0], &c_kappa[0], c_nrad, c_nang, &c_integrationFlag,
             &c_vx[0], &c_vy[0], &c_vz[0])
     except:
         print("CJAM first moments failed in axi_vel.")
@@ -66,17 +72,12 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     if c_integrationFlag!=0:
         print("CJAM first moments integration failed.")
         return False
-
-    return vx, vy, vz
+    
+    return c_vx, c_vy, c_vz
 
 
 
 def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q, beta, nrad=30, nang=7):
-    
-    # get array lengths needed for C
-    nxy = len(xp)
-    lum_total = len(lum_area)
-    pot_total = len(pot_area)
     
     # set array types for C
     cdef double [:] c_xp
@@ -94,7 +95,21 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     cdef double [:] c_rxy
     cdef double [:] c_rxz
     cdef double [:] c_ryz
+    cdef double c_incl
+    cdef int c_nxy
+    cdef int c_lum_total
+    cdef int c_pot_total
+    cdef int c_nrad
+    cdef int c_nang
     cdef int c_integrationFlag
+    
+    # set c inputs
+    c_nxy = len(xp)
+    c_lum_total = len(lum_area)
+    c_pot_total = len(pot_area)
+    c_nrad = nrad
+    c_nang = nang
+    c_incl = incl
     
     # initialise integration error flag
     c_integrationFlag = 0
@@ -110,26 +125,20 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     c_pot_q = np.array(pot_q, dtype=np.double, copy=False)
     c_beta = np.array(beta, dtype=np.double, copy=False)
     
-    # create empty arrays to store the results and create C views into them
-    rxx = np.empty(nxy)
-    c_rxx = rxx
-    ryy = np.empty(nxy)
-    c_ryy = ryy
-    rzz = np.empty(nxy)
-    c_rzz = rzz
-    rxy = np.empty(nxy)
-    c_rxy = rxy
-    rxz = np.empty(nxy)
-    c_rxz = rxz
-    ryz = np.empty(nxy)
-    c_ryz = ryz
+    # create empty arrays to store the results
+    c_rxx = np.empty(c_nxy)
+    c_ryy = np.empty(c_nxy)
+    c_rzz = np.empty(c_nxy)
+    c_rxy = np.empty(c_nxy)
+    c_rxz = np.empty(c_nxy)
+    c_ryz = np.empty(c_nxy)
     
     # now call the JAM code
     try:
-        cython_jam.jam_axi_rms(&c_xp[0], &c_yp[0], nxy, incl,
-            &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], lum_total,
-            &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], pot_total,
-            &c_beta[0], nrad, nang, &c_integrationFlag,
+        cython_jam.jam_axi_rms(&c_xp[0], &c_yp[0], c_nxy, c_incl,
+            &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], c_lum_total,
+            &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], c_pot_total,
+            &c_beta[0], c_nrad, c_nang, &c_integrationFlag,
             &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
             &c_rxz[0], &c_ryz[0])
     except:
@@ -141,7 +150,7 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
         print("CJAM second moments integration failed.")
         return False
     
-    return rxx, ryy, rzz, rxy, rxz, ryz
+    return c_rxx, c_ryy, c_rzz, c_rxy, c_rxz, c_ryz
 
 
 
