@@ -78,7 +78,7 @@ def axi_vel(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
 
 
 
-def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q, beta, nrad=30, nang=7):
+def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q, beta, nrad=30, nang=7, xaxis=True, yaxis=True, zaxis=True):
     
     # set array types for C
     cdef double [:] c_xp
@@ -103,6 +103,9 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     cdef int c_nrad
     cdef int c_nang
     cdef int c_integrationFlag
+    cdef int c_xaxis
+    cdef int c_yaxis
+    cdef int c_zaxis
     
     # set c inputs
     c_nxy = len(xp)
@@ -111,6 +114,9 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     c_nrad = nrad
     c_nang = nang
     c_incl = incl
+    c_xaxis = int(xaxis)
+    c_yaxis = int(yaxis)
+    c_zaxis = int(zaxis)
     
     # initialise integration error flag
     c_integrationFlag = 0
@@ -126,22 +132,23 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
     c_pot_q = np.array(pot_q, dtype=np.double, copy=False)
     c_beta = np.array(beta, dtype=np.double, copy=False)
     
-    # create empty arrays to store the results
-    c_rxx = np.empty(c_nxy)
-    c_ryy = np.empty(c_nxy)
-    c_rzz = np.empty(c_nxy)
-    c_rxy = np.empty(c_nxy)
-    c_rxz = np.empty(c_nxy)
-    c_ryz = np.empty(c_nxy)
+    # create arrays to store the results, initialized at NaN
+    c_rxx = np.full(c_nxy, np.nan)
+    c_ryy = np.full(c_nxy, np.nan)
+    c_rzz = np.full(c_nxy, np.nan)
+    c_rxy = np.full(c_nxy, np.nan)
+    c_rxz = np.full(c_nxy, np.nan)
+    c_ryz = np.full(c_nxy, np.nan)
     
     # now call the JAM code
     try:
-        cython_jam.jam_axi_rms(&c_xp[0], &c_yp[0], c_nxy, c_incl,
+        cython_jam.jam_axi_rms_axes(&c_xp[0], &c_yp[0], c_nxy, c_incl,
             &c_lum_area[0], &c_lum_sigma[0], &c_lum_q[0], c_lum_total,
             &c_pot_area[0], &c_pot_sigma[0], &c_pot_q[0], c_pot_total,
             &c_beta[0], c_nrad, c_nang, &c_integrationFlag,
             &c_rxx[0], &c_ryy[0], &c_rzz[0], &c_rxy[0],
-            &c_rxz[0], &c_ryz[0])
+            &c_rxz[0], &c_ryz[0],
+            c_xaxis, c_yaxis, c_zaxis)
     except:
         print("CJAM second moments failed in axi_rms.", flush=True)
         return False
@@ -155,7 +162,7 @@ def axi_rms(xp, yp, incl, lum_area, lum_sigma, lum_q, pot_area, pot_sigma, pot_q
 
 
 
-def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, nscale=1, mscale=1, incl=np.pi/2*u.rad, mbh=0*u.Msun, rbh=0*u.arcsec, nrad=30, nang=7):
+def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, nscale=1, mscale=1, incl=np.pi/2*u.rad, mbh=0*u.Msun, rbh=0*u.arcsec, nrad=30, nang=7, xaxis=True, yaxis=True, zaxis=True):
     
     # make sure anisotropy and rotation arrays are the correct length
     beta = np.ones(len(tracer_mge))*beta
@@ -213,7 +220,10 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
             potential_copy["q"],
             beta,
             nrad,
-            nang)
+            nang,
+            xaxis=xaxis,
+            yaxis=yaxis,
+            zaxis=zaxis)
     except:
         print("CJAM second moments failed in axisymmetric.", flush=True)
         return False
@@ -221,14 +231,23 @@ def axisymmetric(xp, yp, tracer_mge, potential_mge, distance, beta=0, kappa=0, n
     # put results into astropy table, also convert PMs to mas/yr
     kms2masyr = (u.km/u.s*u.rad/distance).to("mas/yr")
     moments = table.QTable()
-    moments["vx"] = vx*kms2masyr
-    moments["vy"] = vy*kms2masyr
-    moments["vz"] = vz*u.km/u.s
-    moments["v2xx"] = rxx*kms2masyr**2
-    moments["v2yy"] = ryy*kms2masyr**2
-    moments["v2zz"] = rzz*(u.km/u.s)**2
-    moments["v2xy"] = rxy*kms2masyr**2
-    moments["v2xz"] = rxz*kms2masyr*u.km/u.s
-    moments["v2yz"] = ryz*kms2masyr*u.km/u.s
+    if xaxis:
+        moments["vx"] = vx*kms2masyr
+    if yaxis:
+        moments["vy"] = vy*kms2masyr
+    if zaxis:
+        moments["vz"] = vz*u.km/u.s
+    if xaxis:
+        moments["v2xx"] = rxx*kms2masyr**2
+    if yaxis:
+        moments["v2yy"] = ryy*kms2masyr**2
+    if zaxis:
+        moments["v2zz"] = rzz*(u.km/u.s)**2
+    if xaxis and yaxis:
+        moments["v2xy"] = rxy*kms2masyr**2
+    if xaxis and zaxis:
+        moments["v2xz"] = rxz*kms2masyr*u.km/u.s
+    if yaxis and zaxis:
+        moments["v2yz"] = ryz*kms2masyr*u.km/u.s
     
     return moments
