@@ -38,62 +38,12 @@ double *pot_area, double *pot_sigma, double *pot_q, int pot_total, \
 double *beta, int nrad, int nang, int* integrationFlag, \
 double *rxx, double *ryy, double *rzz, double *rxy, double *rxz, double *ryz) {
     
-    struct multigaussexp lum, pot;
-    double* mu;
-    int i, check;
-    
-    // put luminous MGE components into structure
-    lum.area = lum_area;
-    lum.sigma = lum_sigma;
-    lum.q = lum_q;
-    lum.ntotal = lum_total;
-    
-    // put potential MGE components into structure
-    pot.area = pot_area;
-    pot.sigma = pot_sigma;
-    pot.q = pot_q;
-    pot.ntotal = pot_total;
-    
-    // calculate xx moments and put into results array
-    mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, 1, \
-        integrationFlag);
-    for (i=0; i<nxy; i++) rxx[i] = mu[i];
-    
-    // check for any non-zero beta or non-unity flattening
-    check = 0;
-    for (i=0; i<lum.ntotal; i++) if (beta[i]!=0.) check++;
-    for (i=0; i<lum.ntotal; i++) if (lum_q[i]!=1.) check++;
-    for (i=0; i<pot.ntotal; i++) if (pot_q[i]!=1.) check++;
-    
-    // for anisotropic models, calculate the other moments
-    if (check>0) {
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, \
-            2, integrationFlag);
-        for (i=0; i<nxy; i++) ryy[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, \
-            3, integrationFlag);
-        for (i=0; i<nxy; i++) rzz[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, \
-            4, integrationFlag);
-        for (i=0; i<nxy; i++) rxy[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, \
-            5, integrationFlag);
-        for (i=0; i<nxy; i++) rxz[i] = mu[i];
-        mu = jam_axi_rms_mmt(xp, yp, nxy, incl, &lum, &pot, beta, nrad, nang, \
-            6, integrationFlag);
-        for (i=0; i<nxy; i++) ryz[i] = mu[i];
-    }
-    // otherwise just propagate
-    else {
-        for (i=0; i<nxy; i++) ryy[i] = mu[i];
-        for (i=0; i<nxy; i++) rzz[i] = mu[i];
-        for (i=0; i<nxy; i++) rxy[i] = 0.;
-        for (i=0; i<nxy; i++) rxz[i] = 0.;
-        for (i=0; i<nxy; i++) ryz[i] = 0.;
-    }
-    
-    // free memory
-    free(mu);
+    jam_axi_rms_axes(xp, yp, nxy, incl,
+        lum_area, lum_sigma, lum_q, lum_total,
+        pot_area, pot_sigma, pot_q, pot_total,
+        beta, nrad, nang, integrationFlag,
+        rxx, ryy, rzz, rxy, rxz, ryz,
+        1, 1, 1);
     
     return;
 }
